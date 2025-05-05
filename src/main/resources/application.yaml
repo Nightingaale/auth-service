@@ -1,0 +1,30 @@
+server:
+  port: 8090
+
+spring:
+  docker:
+    compose:
+      file: docker-compose.yaml
+  application:
+    name: auth-service
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: example
+
+logging:
+  level:
+    org.hibernate: WARN
