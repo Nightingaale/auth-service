@@ -19,12 +19,12 @@ import java.util.logging.Logger;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AuthListener {
+public class AuthServiceListener {
 
     private final KafkaTemplate<String, UserRegistrationDto> userRegistrationTemplate;
     private final KafkaTemplate<String, UserRemoveDto> userRemoveTemplate;
     private final AuthService authService;
-    private static final Logger logger = Logger.getLogger(AuthListener.class.getName());
+    private static final Logger logger = Logger.getLogger(AuthServiceListener.class.getName());
     private final UserRegistrationMapper userRegistrationMapper;
     private final UserRegistrationRepository userRegistrationRepository;
     private final UserRegisteredMapper userRegisteredMapper;
