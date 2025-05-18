@@ -1,14 +1,13 @@
 package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "logout")
@@ -18,4 +17,9 @@ public class UserLogoutEntity {
     private String correlationId;
     private String userId;
     private LocalDateTime logoutTime;
+
+    @PrePersist
+    public void prePersist() {
+        logoutTime = LocalDateTime.now();
+    }
 }

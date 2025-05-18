@@ -1,14 +1,13 @@
 package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "registration")
@@ -20,5 +19,10 @@ public class UserRegistrationEntity {
     private String email;
     private String username;
     private String password;
-    private LocalDateTime createdAt;
+    private LocalDateTime registrationAt;
+
+    @PrePersist
+    public void prePersist() {
+        registrationAt = LocalDateTime.now();
+    }
 }

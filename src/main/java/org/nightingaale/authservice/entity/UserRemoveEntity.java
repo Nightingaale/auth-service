@@ -1,14 +1,13 @@
 package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "remove")
@@ -17,5 +16,10 @@ public class UserRemoveEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String correlationId;
     private String userId;
-    private LocalDateTime removedDate;
+    private LocalDateTime removeDate;
+
+    @PrePersist
+    public void prePersist() {
+        removeDate = LocalDateTime.now();
+    }
 }
