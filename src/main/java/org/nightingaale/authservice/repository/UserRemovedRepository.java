@@ -1,12 +1,9 @@
 package org.nightingaale.authservice.repository;
 
-import org.nightingaale.authservice.entity.UserRemoveEntity;
+import org.nightingaale.authservice.entity.UserRemovedEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface UserRemovedRepository extends JpaRepository<UserRemoveEntity, Long> {
-    Optional<UserRemoveEntity> findByCorrelationId(String correlationId);
+public interface UserRemovedRepository extends JpaRepository<UserRemovedEntity, String> {
 }
