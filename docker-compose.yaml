@@ -73,8 +73,8 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_USERNAME}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_PASSWORD}
     ports:
-      - ${KC_PORT}:${KC_PORT}
-    command: ["start-dev", "--http-port=${KC_PORT}"]
+      - ${KC_LOCAL_PORT}:${KC_CONTAINER_PORT}
+    command: start-dev
     depends_on:
       - redis
       - postgres
@@ -96,7 +96,6 @@ services:
       - redis_data:/data/cache
     networks:
       - auth_network
-
 
 volumes:
   pg_data:
