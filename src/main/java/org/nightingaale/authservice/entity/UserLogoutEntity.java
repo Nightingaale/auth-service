@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Table(name = "logout")
 public class UserLogoutEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String correlationId;
     private String userId;
     private LocalDateTime logoutTime;

@@ -13,10 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "login")
 public class UserLoginEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String correlationId;
     private String username;
-    private Long balance;
     private LocalDateTime loginTime;
 
     @PrePersist
