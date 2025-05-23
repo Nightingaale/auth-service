@@ -11,7 +11,6 @@ import lombok.*;
 @Table(name = "removed")
 public class UserRemovedEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String correlationId;
     private String userId;
     private boolean userExists;
