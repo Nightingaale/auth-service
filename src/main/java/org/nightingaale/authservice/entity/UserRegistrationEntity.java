@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Table(name = "registration")
 public class UserRegistrationEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String correlationId;
     private String userId;
     private String email;
