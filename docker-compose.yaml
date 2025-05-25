@@ -92,7 +92,7 @@ services:
     volumes:
       - redis_data:/data/cache
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
