@@ -11,7 +11,7 @@ services:
       - ${ZK_PORT}:${ZK_PORT}
 
   kafka:
-    image: bitnami/kafka:3.3.2
+    image: bitnami/kafka:3.3.2 # Used old version of Kafka to stabilize work with Zookeeper
     container_name: kafka
     restart: unless-stopped
     depends_on:
@@ -65,7 +65,7 @@ services:
       - ./.env
     environment:
       - KC_DB=${DB_NAME}
-      - KC_DB_URL_HOST=${DB_NAME}
+      - KC_DB_URL_HOST=postgres
       - KC_DB_URL_DATABASE=${DB_NAME}
       - KC_DB_USERNAME=${DB_USER}
       - KC_DB_PASSWORD=${DB_PASSWORD}
@@ -82,18 +82,20 @@ services:
       - auth_network
 
   redis:
-    container_name: redis-keycloak-hash
+    container_name: redis
     image: redis:latest
     restart: unless-stopped
     env_file:
       - ./.env
     ports:
       - ${RS_PORT}:${RS_PORT}
-    environment:
-      - REDIS_PASSWORD=${RS_PASSWORD}
-    command: ["redis-server", "--requirepass", "${RS_PORT}"]
     volumes:
       - redis_data:/data/cache
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - auth_network
 
