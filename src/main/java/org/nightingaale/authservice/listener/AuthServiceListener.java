@@ -1,5 +1,6 @@
 package org.nightingaale.authservice.listener;
 
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.AccessTokenResponse;
 import org.nightingaale.authservice.dto.*;
@@ -18,7 +19,6 @@ import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AuthServiceListener {
 
     private final KafkaTemplate<String, UserRegistrationDto> userRegistrationTemplate;
@@ -27,18 +27,24 @@ public class AuthServiceListener {
     private static final Logger logger = Logger.getLogger(AuthServiceListener.class.getName());
     private final UserRegistrationMapper userRegistrationMapper;
     private final UserRegistrationRepository userRegistrationRepository;
-    private final UserRegisteredMapper userRegisteredMapper;
-    private final UserRegisteredRepository userRegisteredRepository;
-    private final UserRemovedMapper userRemovedMapper;
-    private final UserRemovedRepository userRemovedRepository;
     private final UserLoginMapper userLoginMapper;
     private final UserLoginRepository userLoginRepository;
     private final UserRemoveMapper userRemoveMapper;
     private final UserRemoveRepository userRemoveRepository;
 
+    @Transactional
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
-            String keycloakUserId = authService.registerUser(event.getUsername(), event.getEmail(), event.getPassword());
+            if (userRegistrationRepository.existsById(event.getCorrelationId())) {
+                logger.warning("User with correlationId already exists: " + event.getCorrelationId());
+                return;
+            }
+
+            String keycloakUserId = authService.registerUser(
+                    event.getUsername(),
+                    event.getEmail(),
+                    event.getPassword()
+            );
 
             UserRegistrationDto registrationEvent = new UserRegistrationDto(
                     event.getCorrelationId(),
@@ -59,24 +65,20 @@ public class AuthServiceListener {
     }
 
     @KafkaListener(topics = "user-registered", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRegistered")
+    @Transactional
     public void saveRegisteredEvent(UserRegisteredDto event) {
         if (event.isUserExists()) {
-            logger.info("[User has been successfully registered with ID: [" + event.getUserId() + "]");
-
-            UserRegisteredEntity entity = userRegisteredMapper.toEntity(event);
-            userRegisteredRepository.save(entity);
+            logger.info("[User has been successfully registered with ID: [" + event.getUserId() + "]");;
         }
     }
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
+    @Transactional
     public ResponseEntity<?> saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
                 authService.removeUser(event.getUserId());
                 logger.info("[User with ID: " + event.getUserId() + " successfully removed.]");
-
-                UserRemovedEntity entity = userRemovedMapper.toEntity(event);
-                userRemovedRepository.save(entity);
             }
             return ResponseEntity.ok("[User logged out successfully!]");
         } catch (Exception e) {
@@ -85,10 +87,11 @@ public class AuthServiceListener {
         }
     }
 
+    @Transactional
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             userRemoveTemplate.send("user-remove", event);
-            logger.info("[User logged out successfully!]");
+            logger.info("[User remove successfully!]");
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
@@ -98,11 +101,16 @@ public class AuthServiceListener {
         }
     }
 
+    @Transactional
     public void saveLoginEvent(UserLoginDto event) {
         try {
-            AccessTokenResponse tokenResponse = authService.authenticateUser(event.getUsername(), event.getCorrelationId());
-            logger.info("[User's has been successfully login! Generation access token.]");
-            ResponseEntity.ok(tokenResponse);
+            AccessTokenResponse tokenResponse = authService.authenticateUser(
+                    event.getUsername(),
+                    event.getPassword()
+            );
+
+            logger.info("[User has successfully logged in! Access token generated.]");
+            Response.ok(tokenResponse);
 
             UserLoginEntity entity = userLoginMapper.toEntity(event);
             userLoginRepository.save(entity);
