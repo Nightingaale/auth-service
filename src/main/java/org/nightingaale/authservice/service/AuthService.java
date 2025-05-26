@@ -1,7 +1,6 @@
 package org.nightingaale.authservice.service;
 
 import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -13,14 +12,12 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.logging.Logger;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     @Value("${keycloak.auth-server-url}")
@@ -38,7 +35,7 @@ public class AuthService {
     private static final Logger logger = Logger.getLogger(AuthService.class.getName());
 
     private Keycloak getAdminKeycloakInstance() {
-        logger.info("Creating Keycloak admin");
+        logger.info("Creating Keycloak administration instance");
         return KeycloakBuilder.builder()
                 .serverUrl(keycloakAuthServerUrl)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
@@ -49,7 +46,7 @@ public class AuthService {
     }
 
     public String registerUser(String username, String email, String password) {
-        logger.info("]Attempting to register user: " + username + "]");
+        logger.info("[Attempting to register user: " + username + "]");
         Keycloak keycloak = getAdminKeycloakInstance();
         RealmResource realmResource = keycloak.realm(keycloakRealm);
         UsersResource usersResource = realmResource.users();
@@ -58,6 +55,9 @@ public class AuthService {
         user.setUsername(username);
         user.setEmail(email);
         user.setEnabled(true);
+        user.setEmailVerified(true);
+        user.setFirstName(username);
+        user.setLastName(username);
 
         Response response = usersResource.create(user);
         if (response.getStatus() != 201) {
@@ -78,9 +78,7 @@ public class AuthService {
         keycloak.realm(keycloakRealm).users().get(userId).resetPassword(credential);
 
         RoleRepresentation userRole = realmResource.roles().get("user").toRepresentation();
-        keycloak.realm(keycloakRealm).users().get(userId)
-                .roles().realmLevel().add(Collections.singletonList(userRole));
-
+        keycloak.realm(keycloakRealm).users().get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
         logger.info("[User successfully registered in Keycloak with ID: " + userId + "]");
         return userId;
     }
@@ -115,7 +113,7 @@ public class AuthService {
         return response;
     }
 
-    public ResponseEntity<?> logoutUser(String userId) {
+    public void logoutUser(String userId) {
         logger.info("[Logging out user with ID: " + userId + "]");
         Keycloak keycloak = getAdminKeycloakInstance();
         try {
@@ -125,11 +123,11 @@ public class AuthService {
         } catch (Exception e) {
             logger.warning("[Error while logging out user with ID " + userId + ": " + e.getMessage() + "]");
         }
-        return ResponseEntity.ok().build();
     }
 
     public void removeUser(String userId) {
         logger.info("[Attempting to remove user with ID: " + userId + "]");
+
         Keycloak keycloak = getAdminKeycloakInstance();
         RealmResource realmResource = keycloak.realm(keycloakRealm);
         UsersResource usersResource = realmResource.users();
