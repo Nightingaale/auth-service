@@ -1,6 +1,10 @@
 server:
   port: 8090
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 spring:
   docker:
     compose:
@@ -14,19 +18,32 @@ spring:
       port: 6379
 
   kafka:
-    bootstrap-servers: 9092
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: user-registration-topic
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     open-in-view: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: example
+    url: <your-db-url>
+    username: <your-db-username>
+    password: <your-db-password>
+
+keycloak:
+  jwk-certs: <your-jwk-certs>
+  realm: <your-realm>
+  auth-server-url: <your-auth-server-url>
+  resource: <your-client>
+  credentials:
+    client-id: <your-client>
+    secret: <your-client-secret>
+  use-resource-role-mappings: true
 
 logging:
   level:
