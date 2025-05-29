@@ -40,7 +40,7 @@ services:
     image: postgres:17.4-alpine3.20
     restart: unless-stopped
     env_file:
-      - ./.env
+      - .env-example
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -62,7 +62,7 @@ services:
     image: quay.io/keycloak/keycloak:26.1.0
     restart: unless-stopped
     env_file:
-      - ./.env
+      - .env-example
     environment:
       - KC_DB=${DB_NAME}
       - KC_DB_URL_HOST=postgres
@@ -86,7 +86,7 @@ services:
     image: redis:latest
     restart: unless-stopped
     env_file:
-      - ./.env
+      - .env-example
     ports:
       - ${RS_PORT}:${RS_PORT}
     volumes:
