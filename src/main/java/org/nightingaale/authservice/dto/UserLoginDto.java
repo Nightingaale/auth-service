@@ -11,5 +11,4 @@ public class UserLoginDto {
     private String correlationId;
     private String username;
     private String password;
-    private Long balance;
 }
