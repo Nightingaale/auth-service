@@ -64,3 +64,35 @@ Ensure you have the following installed:
      secret: <your-client-secret>
   use-resource-role-mappings: true
    ```
+
+## API Reference
+
+#### Sign up
+
+```http
+  POST /api/v1/auth/sign-up
+```
+
+#### Sign in
+
+```http
+  POST /api/v1/auth/sign-in
+```
+
+#### Logout
+
+```http
+  POST /api/v1/auth/logout
+```
+
+#### Remove
+
+```http
+  POST /api/v1/auth/remove-user
+```
+
+#### User's JWT Token
+
+```http
+  POST /realms/your-realm-name/protocol/openid-connect/token
+```
