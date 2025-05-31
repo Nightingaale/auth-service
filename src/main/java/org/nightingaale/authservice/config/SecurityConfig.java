@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/sign-up", "/api/v1/auth/sign-in").permitAll()
-                        .requestMatchers("/v1/openapi-docs/*", "/swagger-ui/*").permitAll()
+                        .requestMatchers("/v1/openapi-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2
