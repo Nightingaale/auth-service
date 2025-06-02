@@ -66,7 +66,10 @@ Ensure you have the following installed:
    ```
 9. Configure Keycloak:
 - Location Keycloak file: `/.env-example`
+- Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
+- Enter "Create Realm" and take Keycloak config
+- Enter "User Label" like password you write down for your user to get authenticated (!!!)
    ```sh
   keycloak:
    jwk-certs: <your-jwk-certs>
