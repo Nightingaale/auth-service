@@ -1,6 +1,20 @@
+# Auth-service
+Spring-boot microservice that integrates with Keycloak to provide robust authentication and authorization using JWT
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git" />
+  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
 </p>
+  </p>
+
+# Features
+
+- SSO: Provides an authentication system, allowing users to log in once and access multiple applications without needing to re-enter credentials
+- Identity and Access Management: Manage user roles and permissions, ensuring secure access control for applications
+- Scalable Architecture: Supports integration with third-party identity providers
+
+# Prerequisites
+- Java Development Kit(JDK): Version 17 or higher
+- Gradle: For project build and dependency management
+- Keycloak: Authentication management
 
 ## Getting Started
 
@@ -9,10 +23,10 @@ Set up Auth-Service locally using Docker Compose for the dev environment.
 ### Prerequisites
 
 Ensure you have the following installed:
-* Java 17
-* Gradle
-* Docker(Docker Compose)
-* Keycloak, PostgreSQL, Kafka, Redis (use Docker Compose)
+- Java 17
+- Gradle
+- Docker
+- Keycloak, PostgreSQL, Kafka, Redis (use Docker Compose)
   
   ```sh
   java --version
