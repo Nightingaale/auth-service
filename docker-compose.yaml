@@ -9,6 +9,8 @@ services:
       ALLOW_ANONYMOUS_LOGIN: "yes"
     ports:
       - ${ZK_PORT}:${ZK_PORT}
+    networks:
+      - auth_network
 
   kafka:
     container_name: kafka
@@ -34,6 +36,8 @@ services:
       - ${KAFKA_PORT}:${KAFKA_PORT}
     volumes:
       - kafka_data:/bitnami/kafka
+    networks:
+      - auth_network
 
   postgres:
     container_name: postgres
