@@ -1,5 +1,5 @@
 # Auth-service
-Spring-boot microservice that integrates with Keycloak to provide robust authentication and authorization using JWT
+Spring-boot microservice that integrates with Keycloak to provide fast authentication and authorization using JWT
 <p align="left">
   <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
 </p>
