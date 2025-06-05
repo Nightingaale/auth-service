@@ -3,7 +3,6 @@ Spring-boot microservice that integrates with Keycloak to provide fast authentic
 <p align="left">
   <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
 </p>
-  </p>
 
 # Features
 
@@ -82,7 +81,6 @@ Ensure you have the following installed:
      secret: <your-client-secret>
   use-resource-role-mappings: true
    ```
-
 ## API Reference
 
 #### Sign up
