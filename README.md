@@ -1,6 +1,19 @@
+# Auth-service
+Spring-boot microservice that integrates with Keycloak to provide fast authentication and authorization using JWT
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git" />
+  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
 </p>
+
+# Features
+
+- SSO: Provides an authentication system, allowing users to log in once and access multiple applications without needing to re-enter credentials
+- Identity and Access Management: Manage user roles and permissions, ensuring secure access control for applications
+- Scalable Architecture: Supports integration with third-party identity providers
+
+# Prerequisites
+- Java Development Kit(JDK): Version 17 or higher
+- Gradle: For project build and dependency management
+- Keycloak: Authentication management
 
 ## Getting Started
 
@@ -9,10 +22,10 @@ Set up Auth-Service locally using Docker Compose for the dev environment.
 ### Prerequisites
 
 Ensure you have the following installed:
-* Java 17
-* Gradle
-* Docker(Docker Compose)
-* Keycloak, PostgreSQL, Kafka, Redis (use Docker Compose)
+- Java 17
+- Gradle
+- Docker
+- Keycloak, PostgreSQL, Kafka, Redis (use Docker Compose)
   
   ```sh
   java --version
@@ -52,7 +65,11 @@ Ensure you have the following installed:
    ```
 9. Configure Keycloak:
 - Location Keycloak file: `/.env-example`
+- Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
+- Enter "Create Realm" and take Keycloak config
+- Enter "User Label" like password you write down for your user to get authenticated (!!!)
+- Fill your application.yaml file
    ```sh
   keycloak:
    jwk-certs: <your-jwk-certs>
@@ -64,7 +81,6 @@ Ensure you have the following installed:
      secret: <your-client-secret>
   use-resource-role-mappings: true
    ```
-
 ## API Reference
 
 #### Sign up
