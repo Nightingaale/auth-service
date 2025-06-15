@@ -55,15 +55,19 @@ Ensure you have the following installed:
     username: <your-db-username>
     password: <your-db-password>
     ```
-7. Start the dev environment with Docker Compose:
+6. Start the dev environment with Docker Compose:
    ```sh
    docker-compose up -d
    ```
-8. Verify all services are running:
+7. Alternative: Start your microservice:
+   ```sh
+   ./gradlew bootrun
+   ```
+9. Verify all services are running:
    ```sh
    docker ps
    ```
-9. Configure Keycloak:
+10. Configure Keycloak:
 - Location Keycloak file: `/.env-example`
 - Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
