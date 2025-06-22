@@ -37,11 +37,11 @@ Ensure you have the following installed:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/Nightingaale/Auth-Service.git
+   git clone https://github.com/Nightingaale/auth-Service.git
    ```
 2. Move to the project directory:
    ```sh
-   cd Auth-Service
+   cd auth-Service
    ```
 3. Build microservice with Gradle:
     ```sh
