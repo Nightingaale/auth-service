@@ -39,7 +39,7 @@ Ensure you have the following installed:
    ```sh
    git clone https://github.com/Nightingaale/Auth-Service.git
    ```
-2. Move to the project directory):
+2. Move to the project directory:
    ```sh
    cd Auth-Service
    ```
