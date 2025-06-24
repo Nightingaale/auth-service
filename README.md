@@ -47,7 +47,7 @@ Ensure you have the following installed:
     ```sh
    ./gradlew build
    ```
-5. In src/main/resources/application.yml, configure the PostgreSQL settings:
+5. In src/main/resources/application.yml, configure PostgreSQL:
    ```sh
    datasource:
     driver-class-name: org.postgresql.Driver
