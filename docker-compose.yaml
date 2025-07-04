@@ -4,7 +4,7 @@ services:
     image: bitnami/zookeeper:latest
     restart: unless-stopped
     env_file:
-      - .env.dev.example
+      - .env-example
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_LISTENER_PORT: ${ZK_PORT}
@@ -19,7 +19,7 @@ services:
     image: bitnami/kafka:3.3.2 # Used old version of Kafka to stabilize work with Zookeeper
     restart: unless-stopped
     env_file:
-      - .env.dev.example
+      - .env-example
     depends_on:
       - zookeeper
     environment:
@@ -48,7 +48,7 @@ services:
     image: postgres:latest
     restart: unless-stopped
     env_file:
-      - .env.dev.example
+      - .env-example
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -70,7 +70,7 @@ services:
     image: quay.io/keycloak/keycloak:26.1.0
     restart: unless-stopped
     env_file:
-      - .env.dev.example
+      - .env-example
     environment:
       - KC_DB=${DB_NAME}
       - KC_DB_URL_HOST=postgres
@@ -94,7 +94,7 @@ services:
     image: redis:latest
     restart: unless-stopped
     env_file:
-      - .env.dev.example
+      - .env-example
     ports:
       - ${RS_PORT}:${RS_PORT}
     volumes:
