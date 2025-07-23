@@ -111,7 +111,7 @@ Ensure you have the following installed:
   POST /api/v1/auth/remove-user
 ```
 
-#### User's JWT Token
+#### User's JWT
 
 ```http
   POST /realms/your-realm-name/protocol/openid-connect/token
