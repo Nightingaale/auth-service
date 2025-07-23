@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
     environment:
       ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_LISTENER_PORT: ${ZK_PORT}
+      ZOOKEEPER_LISTENER_PORT: "2181"
       ALLOW_ANONYMOUS_LOGIN: "yes"
     ports:
-      - ${ZK_PORT}:${ZK_PORT}
+      - "2181:2181"
     networks:
       - auth_network
 
@@ -20,7 +20,7 @@ services:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${ZK_PORT}"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
@@ -33,7 +33,7 @@ services:
       KAFKA_RESTART_ATTEMPTS: "10"
       KAFKA_RESTART_DELAY: "5"
     ports:
-      - ${KAFKA_PORT}:${KAFKA_PORT}
+      - "9092:9092"
     volumes:
       - kafka_data:/bitnami/kafka
     networks:
@@ -41,16 +41,14 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:17.4-alpine3.20
+    image: postgres:latest
     restart: unless-stopped
-    env_file:
-      - .env-example
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=example
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -65,19 +63,17 @@ services:
     container_name: keycloak
     image: quay.io/keycloak/keycloak:26.1.0
     restart: unless-stopped
-    env_file:
-      - .env-example
     environment:
-      - KC_DB=${DB_NAME}
+      - KC_DB=postgres
       - KC_DB_URL_HOST=postgres
-      - KC_DB_URL_DATABASE=${DB_NAME}
-      - KC_DB_USERNAME=${DB_USER}
-      - KC_DB_PASSWORD=${DB_PASSWORD}
+      - KC_DB_URL_DATABASE=postgres
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=example
       - KC_HOSTNAME=localhost
-      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_USERNAME}
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_PASSWORD}
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=secret
     ports:
-      - ${KC_LOCAL_PORT}:${KC_CONTAINER_PORT}
+      - "8080:8080"
     command: start-dev
     depends_on:
       - redis
@@ -89,10 +85,8 @@ services:
     container_name: redis
     image: redis:latest
     restart: unless-stopped
-    env_file:
-      - .env-example
     ports:
-      - ${RS_PORT}:${RS_PORT}
+      - "6379:6379"
     volumes:
       - redis_data:/data/cache
     healthcheck:
