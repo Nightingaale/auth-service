@@ -3,6 +3,8 @@ services:
     container_name: zookeeper
     image: bitnami/zookeeper:latest
     restart: unless-stopped
+    env_file:
+      - .env-example
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_LISTENER_PORT: "2181"
@@ -16,6 +18,8 @@ services:
     container_name: kafka
     image: bitnami/kafka:3.3.2 # Used old version of Kafka to stabilize work with Zookeeper
     restart: unless-stopped
+    env_file:
+      - .env-example
     depends_on:
       - zookeeper
     environment:

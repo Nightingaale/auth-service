@@ -37,17 +37,17 @@ Ensure you have the following installed:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/Nightingaale/Auth-Service.git
+   git clone https://github.com/Nightingaale/auth-service.git
    ```
-2. Move to the project directory):
+2. Move to the project directory:
    ```sh
-   cd Auth-Service
+   cd auth-service
    ```
 3. Build microservice with Gradle:
     ```sh
    ./gradlew build
    ```
-5. In src/main/resources/application.yml, configure the PostgreSQL settings:
+5. In src/main/resources/application.yml, configure PostgreSQL:
    ```sh
    datasource:
     driver-class-name: org.postgresql.Driver
@@ -55,15 +55,19 @@ Ensure you have the following installed:
     username: <your-db-username>
     password: <your-db-password>
     ```
-7. Start the dev environment with Docker Compose:
+6. Start the dev environment with Docker Compose:
    ```sh
    docker-compose up -d
    ```
-8. Verify all services are running:
+7. Alternative: Start your microservice:
+   ```sh
+   ./gradlew bootrun
+   ```
+9. Verify all services are running:
    ```sh
    docker ps
    ```
-9. Configure Keycloak:
+10. Configure Keycloak:
 - Location Keycloak file: `/.env-example`
 - Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
@@ -107,7 +111,7 @@ Ensure you have the following installed:
   POST /api/v1/auth/remove-user
 ```
 
-#### User's JWT Token
+#### User's JWT
 
 ```http
   POST /realms/your-realm-name/protocol/openid-connect/token
