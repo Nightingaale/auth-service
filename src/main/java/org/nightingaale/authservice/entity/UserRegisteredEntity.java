@@ -2,6 +2,7 @@ package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -16,10 +17,7 @@ public class UserRegisteredEntity {
     private String correlationId;
     private String userId;
     private boolean userExists;
-    private LocalDateTime registeredAt;
 
-    @PrePersist
-    public void prePersist() {
-        registeredAt = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    private LocalDateTime registeredDate;
 }

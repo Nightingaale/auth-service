@@ -2,6 +2,7 @@ package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -15,10 +16,7 @@ public class UserRemoveEntity {
     @Id
     private String correlationId;
     private String userId;
-    private LocalDateTime removeDate;
 
-    @PrePersist
-    public void prePersist() {
-        removeDate = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    private LocalDateTime removeDate;
 }

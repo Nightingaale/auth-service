@@ -2,6 +2,7 @@ package org.nightingaale.authservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -15,10 +16,8 @@ public class UserLogoutEntity {
     @Id
     private String correlationId;
     private String userId;
-    private LocalDateTime logoutTime;
 
-    @PrePersist
-    public void prePersist() {
-        logoutTime = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    private LocalDateTime logoutDate;
+
 }
