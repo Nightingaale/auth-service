@@ -1,16 +1,23 @@
 server:
   port: 8090
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-
 spring:
   docker:
     compose:
       file: docker-compose.yaml
   application:
     name: auth-service
+  threads:
+    virtual:
+      enabled: true
+    cloud:
+      gateway:
+        server:
+          webflux:
+            discovery:
+              locator:
+                lower-case-service-id: true
+                enabled: true
 
   data:
     redis:
@@ -31,18 +38,18 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: <your-db-url>
-    username: <your-db-username>
-    password: <your-db-password>
+    url: ${POSTGRESQL.URL}
+    username: ${POSTGRESQL.USERNAME}
+    password: ${POSTGRESQL.PASSWORD}
 
 keycloak:
-  jwk-certs: <your-jwk-certs>
-  realm: <your-realm>
-  auth-server-url: <your-auth-server-url>
-  resource: <your-client>
+  jwk-certs: http://localhost:8080/realms/auth-service/protocol/openid-connect/certs
+  realm: auth-service
+  auth-server-url: http://localhost:8080
+  resource: app
   credentials:
-    client-id: <your-client>
-    secret: <your-client-secret>
+    client-id: app
+    secret:
   use-resource-role-mappings: true
 
 logging:
