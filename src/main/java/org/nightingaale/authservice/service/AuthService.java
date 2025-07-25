@@ -1,6 +1,7 @@
 package org.nightingaale.authservice.service;
 
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -15,8 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.logging.Logger;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -32,10 +33,8 @@ public class AuthService {
     @Value("${keycloak.credentials.secret}")
     private String keycloakClientSecret;
 
-    private static final Logger logger = Logger.getLogger(AuthService.class.getName());
-
     private Keycloak getAdminKeycloakInstance() {
-        logger.info("Creating Keycloak administration instance");
+        log.info("Creating Keycloak administration instance");
         return KeycloakBuilder.builder()
                 .serverUrl(keycloakAuthServerUrl)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
@@ -46,7 +45,7 @@ public class AuthService {
     }
 
     public String registerUser(String username, String email, String password) {
-        logger.info("[Attempting to register user: " + username + "]");
+        log.info("[Attempting to register user: " + username + "]");
         Keycloak keycloak = getAdminKeycloakInstance();
         RealmResource realmResource = keycloak.realm(keycloakRealm);
         UsersResource usersResource = realmResource.users();
@@ -62,10 +61,10 @@ public class AuthService {
         Response response = usersResource.create(user);
         if (response.getStatus() != 201) {
             if (response.getStatus() == 409) {
-                logger.warning("[User with this username or email already exists: " + username + "]");
+                log.warn("[User with this username or email already exists: " + username + "]");
                 throw new RuntimeException("[User with this username or email already exists in Keycloak.]");
             }
-            logger.severe("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
+            log.error("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
             throw new RuntimeException("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
         }
 
@@ -79,12 +78,12 @@ public class AuthService {
 
         RoleRepresentation userRole = realmResource.roles().get("user").toRepresentation();
         keycloak.realm(keycloakRealm).users().get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
-        logger.info("[User successfully registered in Keycloak with ID: " + userId + "]");
+        log.info("[User successfully registered in Keycloak with ID: " + userId + "]");
         return userId;
     }
 
     public AccessTokenResponse authenticateUser(String username, String password) {
-        logger.info("[Authenticating user: " + username + "]");
+        log.info("[Authenticating user: " + username + "]");
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(keycloakAuthServerUrl)
                 .realm(keycloakRealm)
@@ -99,11 +98,11 @@ public class AuthService {
         String accessToken = accessTokenResponse.getToken();
         String refreshToken = keycloak.tokenManager().refreshToken().getToken();
 
-        logger.info("[Generated tokens: Access Token (valid for 1 week), Refresh Token (valid for 15 minutes)]");
+        log.info("[Generated tokens: Access Token (valid for 2 weeks), Refresh Token (valid for 15 minutes)]");
 
         AccessTokenResponse response = new AccessTokenResponse();
         response.setToken(accessToken);
-        response.setExpiresIn(604800);
+        response.setExpiresIn(1209600);
         response.setNotBeforePolicy(0);
         response.setTokenType("Bearer");
         response.setScope("email userId username");
@@ -114,19 +113,19 @@ public class AuthService {
     }
 
     public void logoutUser(String userId) {
-        logger.info("[Logging out user with ID: " + userId + "]");
+        log.info("[Logging out user with ID: " + userId + "]");
         Keycloak keycloak = getAdminKeycloakInstance();
         try {
             UserResource userResource = keycloak.realm(keycloakRealm).users().get(userId);
             userResource.logout();
-            logger.info("[User with ID " + userId + " has been logged out from all sessions.]");
+            log.info("[User with ID " + userId + " has been logged out from all sessions.]");
         } catch (Exception e) {
-            logger.warning("[Error while logging out user with ID " + userId + ": " + e.getMessage() + "]");
+            log.warn("[Error while logging out user with ID " + userId + ": " + e.getMessage() + "]");
         }
     }
 
     public void removeUser(String userId) {
-        logger.info("[Attempting to remove user with ID: " + userId + "]");
+        log.info("[Attempting to remove user with ID: " + userId + "]");
 
         Keycloak keycloak = getAdminKeycloakInstance();
         RealmResource realmResource = keycloak.realm(keycloakRealm);
@@ -135,13 +134,13 @@ public class AuthService {
         try {
             if (usersResource.get(userId).toRepresentation() != null) {
                 usersResource.delete(userId);
-                logger.info("[User with userId: " + userId + " successfully removed from Keycloak.]");
+                log.info("[User with userId: " + userId + " successfully removed from Keycloak.]");
             } else {
-                logger.warning("[User with userId: " + userId + " not found in Keycloak.]");
+                log.warn("[User with userId: " + userId + " not found in Keycloak.]");
                 throw new RuntimeException("[User not found in Keycloak.]");
             }
         } catch (Exception e) {
-            logger.severe("[Failed to remove user with userId: " + userId + ". Error: " + e.getMessage() + "]");
+            log.error("[Failed to remove user with userId: " + userId + ". Error: " + e.getMessage() + "]");
             throw new RuntimeException("[Failed to remove user from Keycloak: " + e.getMessage() + "]", e);
         }
     }
