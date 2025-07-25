@@ -62,7 +62,7 @@ public class AuthService {
         if (response.getStatus() != 201) {
             if (response.getStatus() == 409) {
                 log.warn("[User with this username or email already exists: " + username + "]");
-                throw new RuntimeException("[User with this username or email already exists in Keycloak.]");
+                throw new RuntimeException("[User with this username or email already exists in Keycloak]");
             }
             log.error("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
             throw new RuntimeException("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
@@ -118,7 +118,7 @@ public class AuthService {
         try {
             UserResource userResource = keycloak.realm(keycloakRealm).users().get(userId);
             userResource.logout();
-            log.info("[User with ID " + userId + " has been logged out from all sessions.]");
+            log.info("[User with ID " + userId + " has been logged out from all sessions]");
         } catch (Exception e) {
             log.warn("[Error while logging out user with ID " + userId + ": " + e.getMessage() + "]");
         }
@@ -134,10 +134,10 @@ public class AuthService {
         try {
             if (usersResource.get(userId).toRepresentation() != null) {
                 usersResource.delete(userId);
-                log.info("[User with userId: " + userId + " successfully removed from Keycloak.]");
+                log.info("[User with userId: " + userId + " successfully removed from Keycloak]");
             } else {
-                log.warn("[User with userId: " + userId + " not found in Keycloak.]");
-                throw new RuntimeException("[User not found in Keycloak.]");
+                log.warn("[User with userId: " + userId + " not found in Keycloak]");
+                throw new RuntimeException("[User not found in Keycloak]");
             }
         } catch (Exception e) {
             log.error("[Failed to remove user with userId: " + userId + ". Error: " + e.getMessage() + "]");
