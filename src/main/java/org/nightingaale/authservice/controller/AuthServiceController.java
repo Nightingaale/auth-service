@@ -34,6 +34,7 @@ public class AuthServiceController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody UserLoginDto event) {
+        event.setCorrelationId(UUID.randomUUID().toString());
         authDtoListener.saveLoginEvent(event);
         return ResponseEntity.ok("User has successfully been signed in!");
     }
