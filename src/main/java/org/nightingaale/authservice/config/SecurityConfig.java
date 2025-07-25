@@ -16,13 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Value("${keycloak.jwk-certs}")
-
-    String jwkUrl;
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(jwkUrl)
+        return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/realms/auth-service/protocol/openid-connect/certs")
                 .build();
     }
 
@@ -32,7 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/sign-up", "/api/v1/auth/sign-in").permitAll()
-                        .requestMatchers("/v1/openapi-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/v1/openapi-docs/**", "/swagger-ui/**", "/actuator/**", "/aggregate/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2
