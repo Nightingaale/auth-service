@@ -8,6 +8,7 @@ import org.nightingaale.authservice.entity.UserLoginEntity;
 @Mapper(componentModel = "spring")
 public interface UserLoginMapper {
     @Mapping(target = "loginTime", ignore = true)
+    @Mapping(target = "password", ignore = true)
     UserLoginEntity toEntity(UserLoginDto dto);
     UserLoginDto toDto(UserLoginEntity entity);
 }

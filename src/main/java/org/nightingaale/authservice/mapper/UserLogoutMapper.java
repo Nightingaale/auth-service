@@ -7,7 +7,7 @@ import org.nightingaale.authservice.entity.UserLogoutEntity;
 
 @Mapper(componentModel = "spring")
 public interface UserLogoutMapper {
-    @Mapping(target = "logoutTime", ignore = true)
+    @Mapping(target = "logoutDate", ignore = true)
     UserLogoutEntity toEntity(UserLogoutDto dto);
     UserLogoutDto toDto(UserLogoutEntity entity);
 }

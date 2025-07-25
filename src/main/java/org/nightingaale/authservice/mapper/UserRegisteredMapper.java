@@ -7,7 +7,7 @@ import org.nightingaale.authservice.entity.UserRegisteredEntity;
 
 @Mapper(componentModel = "spring")
 public interface UserRegisteredMapper {
-    @Mapping(target = "registeredAt", ignore = true)
+    @Mapping(target = "registeredDate", ignore = true)
     UserRegisteredEntity toEntity(UserRegisteredDto dto);
     UserRegisteredDto toDto(UserRegisteredEntity entity);
 
