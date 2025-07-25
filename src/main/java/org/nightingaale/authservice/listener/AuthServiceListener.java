@@ -2,6 +2,7 @@ package org.nightingaale.authservice.listener;
 
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.AccessTokenResponse;
 import org.nightingaale.authservice.dto.*;
 import org.nightingaale.authservice.dto.UserRegistrationDto;
@@ -13,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.logging.Logger;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceListener {
@@ -24,7 +23,6 @@ public class AuthServiceListener {
     private final KafkaTemplate<String, UserRegistrationDto> userRegistrationTemplate;
     private final KafkaTemplate<String, UserRemoveDto> userRemoveTemplate;
     private final AuthService authService;
-    private static final Logger logger = Logger.getLogger(AuthServiceListener.class.getName());
     private final UserRegistrationMapper userRegistrationMapper;
     private final UserRegistrationRepository userRegistrationRepository;
     private final UserLoginMapper userLoginMapper;
@@ -32,11 +30,10 @@ public class AuthServiceListener {
     private final UserRemoveMapper userRemoveMapper;
     private final UserRemoveRepository userRemoveRepository;
 
-    @Transactional
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
             if (userRegistrationRepository.existsById(event.getCorrelationId())) {
-                logger.warning("User with correlationId already exists: " + event.getCorrelationId());
+                log.warn("User with correlationId already exists: " + event.getCorrelationId());
                 return;
             }
 
@@ -58,50 +55,46 @@ public class AuthServiceListener {
             userRegistrationRepository.save(entity);
 
             userRegistrationTemplate.send("user-registration", registrationEvent);
-            logger.info("[User has been successfully registered! Keycloak ID: " + keycloakUserId + "]");
+            log.info("[User has been successfully registered! Keycloak ID: " + keycloakUserId + "]");
         } catch (Exception e) {
-            logger.severe("[User's registration failed. Error: " + e.getMessage() + "]");
+            log.error("[User's registration failed. Error: " + e.getMessage() + "]");
         }
     }
 
     @KafkaListener(topics = "user-registered", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRegistered")
-    @Transactional
     public void saveRegisteredEvent(UserRegisteredDto event) {
         if (event.isUserExists()) {
-            logger.info("[User has been successfully registered with ID: [" + event.getUserId() + "]");;
+            log.info("[User has been successfully registered with ID: [" + event.getUserId() + "]");;
         }
     }
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
-    @Transactional
     public ResponseEntity<?> saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
                 authService.removeUser(event.getUserId());
-                logger.info("[User with ID: " + event.getUserId() + " successfully removed.]");
+                log.info("[User with ID: " + event.getUserId() + " successfully removed]");
             }
             return ResponseEntity.ok("[User logged out successfully!]");
         } catch (Exception e) {
-            logger.info("[Logout failed. Error: " + e.getMessage() + "]");
+            log.info("[Logout failed. Error: " + e.getMessage() + "]");
             return ResponseEntity.status(500).body("[Logout failed: " + e.getMessage() + "]");
         }
     }
 
-    @Transactional
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             userRemoveTemplate.send("user-remove", event);
-            logger.info("[User remove successfully!]");
+            log.info("[User remove successfully!]");
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
 
         } catch (Exception e) {
-            logger.severe("[Logout failed. Error: [ " + e.getMessage() + "]");
+            log.error("[Logout failed. Error: [ " + e.getMessage() + "]");
         }
     }
 
-    @Transactional
     public void saveLoginEvent(UserLoginDto event) {
         try {
             AccessTokenResponse tokenResponse = authService.authenticateUser(
@@ -109,14 +102,14 @@ public class AuthServiceListener {
                     event.getPassword()
             );
 
-            logger.info("[User has successfully logged in! Access token generated.]");
+            log.info("[User has successfully logged in! Access token has been generated]");
             Response.ok(tokenResponse);
 
             UserLoginEntity entity = userLoginMapper.toEntity(event);
             userLoginRepository.save(entity);
 
         } catch (Exception e) {
-            logger.severe("[User's login failed. Error: " + e.getMessage() + "]");
+            log.error("[User's login failed. Error: " + e.getMessage() + "]");
             ResponseEntity.status(401).build();
         }
     }
