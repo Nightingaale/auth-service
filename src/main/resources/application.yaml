@@ -46,9 +46,9 @@ keycloak:
   jwk-certs: http://localhost:8080/realms/auth-service/protocol/openid-connect/certs
   realm: auth-service
   auth-server-url: http://localhost:8080
-  resource: app
+  resource: auth-service
   credentials:
-    client-id: app
+    client-id: auth-service
     secret:
   use-resource-role-mappings: true
 
