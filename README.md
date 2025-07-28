@@ -47,19 +47,7 @@ Ensure you have the following installed:
     ```sh
    ./gradlew build
    ```
-5. In src/main/resources/application.yml, configure PostgreSQL:
-   ```sh
-   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: <your-db-url>
-    username: <your-db-username>
-    password: <your-db-password>
-    ```
-6. Start the dev environment with Docker Compose:
-   ```sh
-   docker-compose up -d
-   ```
-7. Alternative: Start your microservice:
+4. Start your microservice:
    ```sh
    ./gradlew bootrun
    ```
@@ -72,18 +60,13 @@ Ensure you have the following installed:
 - Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
 - Enter "Create Realm" and take Keycloak config
-- Enter "User Label" like password you write down for your user to get authenticated (!!!)
-- Fill your application.yaml file
+- Enter "User Label" like password you write down in Postman for your user to get authenticated (!!!)
+- Fill your client's secret in application.yaml file
    ```sh
   keycloak:
-   jwk-certs: <your-jwk-certs>
-   realm: <your-realm>
-   auth-server-url: <your-auth-server-url>
-   resource: <your-client>
    credentials:
-     client-id: <your-client>
+     client-id: auth-service
      secret: <your-client-secret>
-  use-resource-role-mappings: true
    ```
 ## API Reference
 
