@@ -1,6 +1,10 @@
 server:
   port: 8090
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 spring:
   docker:
     compose:
@@ -55,3 +59,9 @@ keycloak:
 logging:
   level:
     org.hibernate: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus

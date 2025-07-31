@@ -1,7 +1,3 @@
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-
 eureka:
   instance:
     hostname: ${EUREKA.INSTANCE.HOSTNAME}
@@ -12,10 +8,3 @@ eureka:
       defaultZone: ${EUREKA.CLIENT.SERVICE_URL.DEFAULT_ZONE}
     healthcheck:
       enabled: true
-
-management:
-  health:
-    discovery:
-      enabled: false
-    eureka:
-      enabled: false
