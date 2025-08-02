@@ -1,6 +1,10 @@
 server:
   port: 8090
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 spring:
   docker:
     compose:
@@ -49,6 +53,17 @@ keycloak:
     client-id: auth-service
     secret:
   use-resource-role-mappings: true
+
+eureka:
+  instance:
+    hostname: ${EUREKA.INSTANCE.HOSTNAME}
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: ${EUREKA.CLIENT.SERVICE_URL.DEFAULT_ZONE}
+    healthcheck:
+      enabled: true
 
 logging:
   level:
