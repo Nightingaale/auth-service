@@ -1,3 +1,59 @@
+server:
+  port: 8090
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+spring:
+  docker:
+    compose:
+      file: docker-compose.yaml
+  application:
+    name: auth-service
+  threads:
+    virtual:
+      enabled: true
+    cloud:
+      gateway:
+        server:
+          webflux:
+            discovery:
+              locator:
+                lower-case-service-id: true
+                enabled: true
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRESQL.URL}
+    username: ${POSTGRESQL.USERNAME}
+    password: ${POSTGRESQL.PASSWORD}
+
+keycloak:
+  jwk-certs: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
+  realm: auth-service
+  auth-server-url: http://keycloak:8080
+  resource: auth-service
+  credentials:
+    client-id: auth-service
+    secret:
+  use-resource-role-mappings: true
+
 eureka:
   instance:
     hostname: ${EUREKA.INSTANCE.HOSTNAME}
@@ -8,3 +64,13 @@ eureka:
       defaultZone: ${EUREKA.CLIENT.SERVICE_URL.DEFAULT_ZONE}
     healthcheck:
       enabled: true
+
+logging:
+  level:
+    org.hibernate: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
