@@ -21,11 +21,11 @@ spring:
 
   data:
     redis:
-      host: redis
+      host: localhost
       port: 6379
 
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
 
   jpa:
     hibernate:
@@ -41,9 +41,9 @@ spring:
     password: ${POSTGRESQL.PASSWORD}
 
 keycloak:
-  jwk-certs: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
+  jwk-certs: http://localhost:8080/realms/auth-service/protocol/openid-connect/certs
   realm: auth-service
-  auth-server-url: http://keycloak:8080
+  auth-server-url: http://localhost:8080
   resource: auth-service
   credentials:
     client-id: auth-service
@@ -53,9 +53,3 @@ keycloak:
 logging:
   level:
     org.hibernate: WARN
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: prometheus
