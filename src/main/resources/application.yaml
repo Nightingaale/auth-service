@@ -51,7 +51,7 @@ keycloak:
   resource: auth-service
   credentials:
     client-id: auth-service
-    secret: GpXvQrhOj0b3RXe9bM1AbUcDe1c8sNZP
+    secret: 2Np5ep2vc9iAUFudUdtPjh2718WUmCQM
   use-resource-role-mappings: true
 
 logging:
