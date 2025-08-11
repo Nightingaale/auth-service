@@ -36,5 +36,3 @@ out/
 ### VS Code ###
 .vscode/
 
-.env.dev.example
-.env.prod.example
