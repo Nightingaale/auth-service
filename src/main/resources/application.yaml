@@ -6,14 +6,19 @@ springdoc:
     path: /swagger-ui.html
 
 spring:
-  docker:
-    compose:
-      file: docker-compose.yaml
   application:
     name: auth-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
+
   threads:
     virtual:
       enabled: true
+
     cloud:
       gateway:
         server:
