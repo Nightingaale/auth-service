@@ -13,7 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://keycloak:8443/realms/auth-service/protocol/openid-connect/certs
+          jwk-set-uri: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
 
   threads:
     virtual:
@@ -50,9 +50,9 @@ spring:
     password: ${POSTGRESQL.PASSWORD}
 
 keycloak:
-  jwks-certs: https://keycloak:8443/realms/auth-service/protocol/openid-connect/certs
+  jwks-certs: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
   realm: auth-service
-  auth-server-url: https://keycloak:8443/realms/auth-service
+  auth-server-url: http://keycloak:8080/realms/auth-service
   resource: auth-service
   credentials:
     client-id: auth-service
