@@ -19,7 +19,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/realms/auth-service/protocol/openid-connect/certs")
+        return NimbusJwtDecoder.withJwkSetUri("http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs")
                 .build();
     }
 
