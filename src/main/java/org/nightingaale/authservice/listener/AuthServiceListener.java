@@ -87,7 +87,7 @@ public class AuthServiceListener {
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
-                log.warn("User's with ID: " + event.getUserId() + " is not exists");
+                log.warn("User with ID: " + event.getUserId() + " does not exists");
                 return;
             }
 
