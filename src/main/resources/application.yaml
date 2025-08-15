@@ -53,7 +53,7 @@ spring:
 keycloak:
   jwks-certs: http://keycloak:8080/realms/auth-service/protocol/openid-connect/certs
   realm: auth-service
-  auth-server-url: http://keycloak:8080/realms/auth-service
+  auth-server-url: http://keycloak:8080
   resource: auth-service
   credentials:
     client-id: auth-service
