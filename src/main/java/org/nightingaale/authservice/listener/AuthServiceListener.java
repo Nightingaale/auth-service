@@ -93,6 +93,7 @@ public class AuthServiceListener {
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
+            authService.removeUser(event.getUserId());
             userRegistrationRepository.deleteByUserId(event.getUserId());
 
             userRemoveTemplate.send("user-remove", event);
@@ -101,8 +102,6 @@ public class AuthServiceListener {
             log.error("[Logout failed. Error: [ " + e.getMessage() + "]");
         }
     }
-
-
 
     public void saveLoginEvent(UserLoginDto event) {
         try {
