@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -82,6 +83,7 @@ public class AuthServiceListener {
         }
     }
 
+    @Transactional
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
