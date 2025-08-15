@@ -84,12 +84,17 @@ public class AuthServiceListener {
 
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
-            userRemoveTemplate.send("user-remove", event);
-            log.info("[User remove successfully!]");
+            if (!userRegistrationRepository.existsById(event.getCorrelationId())) {
+                log.warn("User's with ID: " + event.getCorrelationId() + " is not exists");
+                return;
+            }
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
+            userRegistrationRepository.deleteById(event.getCorrelationId());
 
+            userRemoveTemplate.send("user-remove", event);
+            log.info("[User has been successfully removed!]");
         } catch (Exception e) {
             log.error("[Logout failed. Error: [ " + e.getMessage() + "]");
         }
