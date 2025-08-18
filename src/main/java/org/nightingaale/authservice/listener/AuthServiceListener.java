@@ -34,52 +34,42 @@ public class AuthServiceListener {
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
             if (userRegistrationRepository.existsById(event.getCorrelationId())) {
-                log.warn("User with correlationId already exists: " + event.getCorrelationId());
+                log.warn("User with correlationID: {} already exists]", event.getCorrelationId());
                 return;
             }
 
-            String keycloakUserId = authService.registerUser(
-                    event.getUsername(),
-                    event.getEmail(),
-                    event.getPassword()
-            );
+            String keycloakUserId = authService.registerUser(event.getUsername(), event.getEmail(), event.getPassword());
 
-            UserRegistrationDto registrationEvent = new UserRegistrationDto(
-                    event.getCorrelationId(),
-                    keycloakUserId,
-                    event.getEmail(),
-                    event.getUsername(),
-                    event.getPassword()
-            );
+            UserRegistrationDto registrationEvent = new UserRegistrationDto(event.getCorrelationId(), keycloakUserId, event.getEmail(), event.getUsername(), event.getPassword());
 
             UserRegistrationEntity entity = userRegistrationMapper.toEntity(registrationEvent);
             userRegistrationRepository.save(entity);
 
             userRegistrationTemplate.send("user-registration", registrationEvent);
-            log.info("[User has been successfully registered! Keycloak ID: " + keycloakUserId + "]");
+            log.info("[User has been successfully registered! Keycloak ID: {}]", keycloakUserId);
         } catch (Exception e) {
-            log.error("[User's registration failed. Error: " + e.getMessage() + "]");
+            log.error("[User's registration failed. Error: {}]", e.getMessage());
         }
     }
 
     @KafkaListener(topics = "user-registered", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRegistered")
     public void saveRegisteredEvent(UserRegisteredDto event) {
         if (event.isUserExists()) {
-            log.info("[User has been successfully registered with ID: [" + event.getUserId() + "]");;
+            log.info("[User has been successfully registered with ID: {}]", event.getCorrelationId());
         }
     }
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
-    public ResponseEntity<?> saveRemovedEvent(UserRemovedDto event) {
+    public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
-                authService.removeUser(event.getUserId());
-                log.info("[User with ID: " + event.getUserId() + " successfully removed]");
+                log.warn("[User with ID: {} successfully removed]", event.getUserId());
+                return;
             }
-            return ResponseEntity.ok("[User logged out successfully!]");
+            userRegistrationRepository.deleteByUserId(event.getUserId());
+            authService.removeUser(event.getUserId());
         } catch (Exception e) {
-            log.info("[Logout failed. Error: " + e.getMessage() + "]");
-            return ResponseEntity.status(500).body("[Logout failed: " + e.getMessage() + "]");
+            log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
     }
 
@@ -87,28 +77,22 @@ public class AuthServiceListener {
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
-                log.warn("User with ID: " + event.getUserId() + " does not exists");
+                log.warn("[User with ID: {}", event.getUserId() + "does not exist]");
                 return;
             }
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
-            authService.removeUser(event.getUserId());
-            userRegistrationRepository.deleteByUserId(event.getUserId());
 
             userRemoveTemplate.send("user-remove", event);
-            log.info("[User has been successfully removed!]");
         } catch (Exception e) {
-            log.error("[Logout failed. Error: [ " + e.getMessage() + "]");
+            log.error("[Logout failed. Error: {}]", e.getMessage());
         }
     }
 
     public void saveLoginEvent(UserLoginDto event) {
         try {
-            AccessTokenResponse tokenResponse = authService.authenticateUser(
-                    event.getUsername(),
-                    event.getPassword()
-            );
+            AccessTokenResponse tokenResponse = authService.authenticateUser(event.getUsername(), event.getPassword());
 
             log.info("[User has successfully logged in! Access token has been generated]");
             Response.ok(tokenResponse);
@@ -117,7 +101,7 @@ public class AuthServiceListener {
             userLoginRepository.save(entity);
 
         } catch (Exception e) {
-            log.error("[User's login failed. Error: " + e.getMessage() + "]");
+            log.error("[User's login failed. Error: {}]", e.getMessage());
             ResponseEntity.status(401).build();
         }
     }
