@@ -1,17 +1,16 @@
-package org.nightingaale.authservice.event;
+package org.nightingaale.authservice.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nightingaale.authservice.dto.UserRegisteredDto;
 import org.nightingaale.authservice.dto.UserRemovedDto;
-import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserRemovedEvent {
+public class KafkaEventListener {
 
     private final AuthServiceListener authServiceListener;
 
