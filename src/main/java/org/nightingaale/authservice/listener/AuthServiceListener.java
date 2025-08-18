@@ -30,6 +30,8 @@ public class AuthServiceListener {
     private final UserLoginRepository userLoginRepository;
     private final UserRemoveMapper userRemoveMapper;
     private final UserRemoveRepository userRemoveRepository;
+    private final UserRemovedMapper userRemovedMapper;
+    private final UserRemovedRepository userRemovedRepository;
 
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
@@ -52,14 +54,7 @@ public class AuthServiceListener {
         }
     }
 
-    @KafkaListener(topics = "user-registered", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRegistered")
-    public void saveRegisteredEvent(UserRegisteredDto event) {
-        if (event.isUserExists()) {
-            log.info("[User has been successfully registered with ID: {}]", event.getCorrelationId());
-        }
-    }
-
-    @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
+    @Transactional
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
@@ -68,6 +63,9 @@ public class AuthServiceListener {
             }
             userRegistrationRepository.deleteByUserId(event.getUserId());
             authService.removeUser(event.getUserId());
+
+            UserRemovedEntity entity = userRemovedMapper.toEntity(event);
+            userRemovedRepository.save(entity);
         } catch (Exception e) {
             log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
