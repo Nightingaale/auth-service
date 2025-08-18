@@ -56,7 +56,6 @@ public class AuthServiceListener {
         }
     }
 
-    @Transactional
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
