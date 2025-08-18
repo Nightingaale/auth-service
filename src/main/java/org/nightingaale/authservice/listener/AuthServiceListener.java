@@ -56,7 +56,6 @@ public class AuthServiceListener {
         }
     }
 
-    @Transactional
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
@@ -73,13 +72,16 @@ public class AuthServiceListener {
         }
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
                 log.warn("[User with ID: {}", event.getUserId() + "does not exist]");
                 return;
             }
+
+            authService.removeUser(event.getUserId());
+            userRegistrationRepository.deleteByUserId(event.getUserId());
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
