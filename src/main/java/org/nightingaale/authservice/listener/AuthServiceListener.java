@@ -56,32 +56,32 @@ public class AuthServiceListener {
         }
     }
 
+    @Transactional
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (!event.isUserExists()) {
-                log.warn("[User with ID: {} successfully removed]", event.getUserId());
+                log.warn("[Waiting for user to be removed...]");
                 return;
             }
-            userRegistrationRepository.deleteByUserId(event.getUserId());
+
             authService.removeUser(event.getUserId());
+            userRegistrationRepository.deleteByUserId(event.getUserId());
 
             UserRemovedEntity entity = userRemovedMapper.toEntity(event);
             userRemovedRepository.save(entity);
+
+            log.info("[User with ID: {} successfully removed]", event.getUserId());
         } catch (Exception e) {
             log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
     }
 
-    @Transactional
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
             if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
                 log.warn("[User with ID: {}", event.getUserId() + "does not exist]");
                 return;
             }
-
-            authService.removeUser(event.getUserId());
-            userRegistrationRepository.deleteByUserId(event.getUserId());
 
             UserRemoveEntity entity = userRemoveMapper.toEntity(event);
             userRemoveRepository.save(entity);
