@@ -16,7 +16,7 @@ public class KafkaEventListener {
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
     public void userRemoved(UserRemovedDto userRemovedDto) {
-        log.info("Received user-remove Kafka event: {}", userRemovedDto);
+        log.info("[Received user-remove Kafka event: {}]", userRemovedDto);
         authServiceListener.saveRemovedEvent(userRemovedDto);
     }
 
