@@ -57,16 +57,17 @@ public class AuthServiceListener {
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
             if (event.isUserExists()) {
-                log.info("[Waiting for user to be removed...]");
-
-                authService.removeUser(event.getUserId());
-                userRegistrationRepository.deleteByUserId(event.getUserId());
-
-                UserRemovedEntity entity = userRemovedMapper.toEntity(event);
-                userRemovedRepository.save(entity);
-
-                log.info("[User with ID: {} successfully removed]", event.getUserId());
+                log.warn("[Waiting for user to be removed...]");
+                return;
             }
+
+            authService.removeUser(event.getUserId());
+            userRegistrationRepository.deleteByUserId(event.getUserId());
+
+            UserRemovedEntity entity = userRemovedMapper.toEntity(event);
+            userRemovedRepository.save(entity);
+
+            log.info("[User with ID: {} successfully removed]", event.getUserId());
         } catch (Exception e) {
             log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
@@ -83,8 +84,9 @@ public class AuthServiceListener {
             userRemoveRepository.save(entity);
 
             userRemoveTemplate.send("user-remove", event);
+            log.info("[Send Kafka user-remove event: {}", event.getUserId());
         } catch (Exception e) {
-            log.error("[Logout failed. Error: {}]", e.getMessage());
+            log.error("[Removal failed. Error: {}]", e.getMessage());
         }
     }
 
