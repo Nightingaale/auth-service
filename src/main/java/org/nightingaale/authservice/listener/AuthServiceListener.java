@@ -15,8 +15,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service
@@ -58,18 +56,17 @@ public class AuthServiceListener {
 
     public void saveRemovedEvent(UserRemovedDto event) {
         try {
-            if (!event.isUserExists()) {
-                log.warn("[Waiting for user to be removed...]");
-                return;
+            if (event.isUserExists()) {
+                log.info("[Waiting for user to be removed...]");
+
+                authService.removeUser(event.getUserId());
+                userRegistrationRepository.deleteByUserId(event.getUserId());
+
+                UserRemovedEntity entity = userRemovedMapper.toEntity(event);
+                userRemovedRepository.save(entity);
+
+                log.info("[User with ID: {} successfully removed]", event.getUserId());
             }
-
-            authService.removeUser(event.getUserId());
-            userRegistrationRepository.deleteByUserId(event.getUserId());
-
-            UserRemovedEntity entity = userRemovedMapper.toEntity(event);
-            userRemovedRepository.save(entity);
-
-            log.info("[User with ID: {} successfully removed]", event.getUserId());
         } catch (Exception e) {
             log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
