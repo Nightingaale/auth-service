@@ -134,9 +134,9 @@ public class AuthService {
         try {
             if (usersResource.get(userId).toRepresentation() != null) {
                 usersResource.delete(userId);
-                log.info("[User with userID: {}", userId + "has been deleted from Keycloak]");
+                log.info("[User with userID: {} has been deleted from Keycloak]", userId);
             } else {
-                log.warn("[User with userID: {}", userId + "has not been deleted from Keycloak]");
+                log.warn("[User with userID: {} has not been deleted from Keycloak]", userId);
                 throw new RuntimeException("[User has not found in Keycloak]");
             }
         } catch (Exception e) {

@@ -85,7 +85,7 @@ public class AuthServiceListener {
             userRemoveRepository.save(entity);
 
             userRemoveTemplate.send("user-remove", event);
-            log.info("[Send Kafka user-remove event: {}", event.getUserId());
+            log.info("[Send Kafka user-remove event to user-service: {}", event.getUserId());
         } catch (Exception e) {
             log.error("[Removal failed. Error: {}]", e.getMessage());
         }
