@@ -11,7 +11,6 @@ import org.nightingaale.authservice.mapper.*;
 import org.nightingaale.authservice.repository.*;
 import org.nightingaale.authservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,6 @@ public class AuthServiceListener {
     private final UserRemoveRepository userRemoveRepository;
     private final UserRemovedMapper userRemovedMapper;
     private final UserRemovedRepository userRemovedRepository;
-    private final UserRegisteredRepository userRegisteredRepository;
 
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
@@ -65,7 +63,6 @@ public class AuthServiceListener {
 
             authService.removeUser(event.getUserId());
             userRegistrationRepository.deleteByUserId(event.getUserId());
-            userRegisteredRepository.deleteByUserId(event.getUserId());
 
             UserRemovedEntity entity = userRemovedMapper.toEntity(event);
             userRemovedRepository.save(entity);

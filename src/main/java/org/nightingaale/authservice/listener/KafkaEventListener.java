@@ -21,9 +21,10 @@ public class KafkaEventListener {
     private final UserRegisteredMapper userRegisteredMapper;
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
-    public void userRemoved(UserRemovedDto userRemovedDto) {
-        authServiceListener.saveRemovedEvent(userRemovedDto);
-        log.info("[Received user-removed Kafka event from user-service: {}]", userRemovedDto);
+    public void userRemoved(UserRemovedDto event) {
+        authServiceListener.saveRemovedEvent(event);
+        userRegisteredRepository.deleteByUserId(event.getUserId());
+        log.info("[Received user-removed Kafka event from user-service. User has been successfully removed with ID: {}]", event.getUserId());
     }
 
     @KafkaListener(topics = "user-registered", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRegistered")
@@ -31,7 +32,7 @@ public class KafkaEventListener {
         if (event.isUserExists()) {
             UserRegisteredEntity entity = userRegisteredMapper.toEntity(event);
             userRegisteredRepository.save(entity);
-            log.info("[Received user-registered Kafka event from user-service. User has been successfully registered with ID: {}]", event.getCorrelationId());
+            log.info("[Received user-registered Kafka event from user-service. User has been successfully registered with ID: {}]", event.getUserId());
         }
     }
 }
