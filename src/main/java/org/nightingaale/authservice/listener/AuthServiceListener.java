@@ -32,6 +32,7 @@ public class AuthServiceListener {
     private final UserRemoveRepository userRemoveRepository;
     private final UserRemovedMapper userRemovedMapper;
     private final UserRemovedRepository userRemovedRepository;
+    private final UserRegisteredRepository userRegisteredRepository;
 
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
@@ -64,6 +65,7 @@ public class AuthServiceListener {
 
             authService.removeUser(event.getUserId());
             userRegistrationRepository.deleteByUserId(event.getUserId());
+            userRegisteredRepository.deleteByUserId(event.getUserId());
 
             UserRemovedEntity entity = userRemovedMapper.toEntity(event);
             userRemovedRepository.save(entity);

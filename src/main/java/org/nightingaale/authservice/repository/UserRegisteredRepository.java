@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRegisteredRepository extends JpaRepository<UserRegisteredEntity, String> {
-
+    void deleteByUserId(String userId);
 }
