@@ -34,7 +34,7 @@ public class AuthService {
     private String keycloakClientSecret;
 
     private Keycloak getAdminKeycloakInstance() {
-        log.info("Creating Keycloak administration instance");
+        log.info("[Creating Keycloak administration instance]");
         return KeycloakBuilder.builder()
                 .serverUrl(keycloakAuthServerUrl)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
@@ -61,10 +61,10 @@ public class AuthService {
         Response response = usersResource.create(user);
         if (response.getStatus() != 201) {
             if (response.getStatus() == 409) {
-                log.warn("[User with this username or email already exists: {}]", username);
+                log.warn("[User with this username or email already exists: {}, {}]", username, email);
                 throw new RuntimeException("[User with this username or email already exists in Keycloak]");
             }
-            log.error("Failed to create user in Keycloak: {}]", response.getStatusInfo());
+            log.error("[Failed to create user in Keycloak: {}]", response.getStatusInfo());
             throw new RuntimeException("[Failed to create user in Keycloak: " + response.getStatusInfo() + "]");
         }
 
@@ -140,7 +140,7 @@ public class AuthService {
                 throw new RuntimeException("[User has not found in Keycloak]");
             }
         } catch (Exception e) {
-            log.error("Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
+            log.error("[Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
         }
     }
 }

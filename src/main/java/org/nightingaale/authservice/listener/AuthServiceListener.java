@@ -36,7 +36,7 @@ public class AuthServiceListener {
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
             if (userRegistrationRepository.existsById(event.getCorrelationId())) {
-                log.warn("User with correlationID: {} already exists]", event.getCorrelationId());
+                log.warn("[User with correlationID: {} already exists]", event.getCorrelationId());
                 return;
             }
 
@@ -70,7 +70,7 @@ public class AuthServiceListener {
 
             log.info("[User with ID: {} successfully removed]", event.getUserId());
         } catch (Exception e) {
-            log.error("Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
+            log.error("[Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
         }
     }
 
