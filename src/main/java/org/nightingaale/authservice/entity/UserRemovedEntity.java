@@ -19,5 +19,6 @@ public class UserRemovedEntity {
     private boolean userExists;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime removedDate;
 }

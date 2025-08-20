@@ -18,5 +18,6 @@ public class UserRemoveEntity {
     private String userId;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime removeDate;
 }

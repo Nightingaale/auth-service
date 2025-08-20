@@ -18,6 +18,7 @@ public class UserLogoutEntity {
     private String userId;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime logoutDate;
 
 }

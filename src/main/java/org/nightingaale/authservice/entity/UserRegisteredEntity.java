@@ -19,5 +19,6 @@ public class UserRegisteredEntity {
     private boolean userExists;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime registeredDate;
 }
