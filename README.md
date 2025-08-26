@@ -58,7 +58,6 @@ Ensure you have the following installed:
 10. Configure Keycloak:
 - Location Keycloak file: `/.env-example`
 - Location Keycloak config file: `.config`
-- Access the Keycloak admin console at http://localhost:8080
 - Enter "Create Realm" and take Keycloak config
 - Fill your client's secret in application.yaml file
    ```sh
