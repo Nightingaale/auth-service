@@ -1,4 +1,4 @@
-# Auth-service
+# Auth-service (Developer)
 Spring-boot microservice that integrates with Keycloak to provide fast authentication and authorization using JWT
 <p align="left">
   <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
@@ -60,7 +60,6 @@ Ensure you have the following installed:
 - Location Keycloak config file: `.config`
 - Access the Keycloak admin console at http://localhost:8080
 - Enter "Create Realm" and take Keycloak config
-- Enter "User Label" like password you write down in Postman for your user to get authenticated (!!!)
 - Fill your client's secret in application.yaml file
    ```sh
   keycloak:
