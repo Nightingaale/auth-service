@@ -1,6 +1,7 @@
 package org.nightingaale.authservice.service;
 
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -13,12 +14,14 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     @Value("${keycloak.auth-server-url}")
@@ -32,6 +35,8 @@ public class AuthService {
 
     @Value("${keycloak.credentials.secret}")
     private String keycloakClientSecret;
+
+    private final TokenService tokenService;
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
@@ -83,35 +88,19 @@ public class AuthService {
     }
 
     public AccessTokenResponse authenticateUser(String username, String password) {
-        log.info("[Authenticating user: {}]", username);
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(keycloakAuthServerUrl)
+        String userId = getAdminKeycloakInstance()
                 .realm(keycloakRealm)
-                .grantType(OAuth2Constants.PASSWORD)
-                .clientId(keycloakClientId)
-                .clientSecret(keycloakClientSecret)
-                .username(username)
-                .password(password)
-                .build();
-
-        AccessTokenResponse accessTokenResponse = keycloak.tokenManager().getAccessToken();
-        String accessToken = accessTokenResponse.getToken();
-        String refreshToken = keycloak.tokenManager().refreshToken().getToken();
-
-        log.info("[Generated tokens: Access Token (valid for 2 weeks), Refresh Token (valid for 15 minutes)]");
-
-        AccessTokenResponse response = new AccessTokenResponse();
-        response.setToken(accessToken);
-        response.setExpiresIn(1209600);
-        response.setNotBeforePolicy(0);
-        response.setTokenType("Bearer");
-        response.setScope("email userId username");
-
-        response.setRefreshToken(refreshToken);
-        response.setRefreshExpiresIn(900);
-        return response;
+                .users()
+                .search(username)
+                .stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(username))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("[User has not found]"))
+                .getId();
+        return tokenService.getCachedToken(userId, username, password);
     }
 
+    @CacheEvict(value = "AUTH_TOKEN", key = "#userId")
     public void logoutUser(String userId) {
         log.info("[Logging out user with ID: {}]", userId);
         Keycloak keycloak = getAdminKeycloakInstance();
@@ -124,6 +113,7 @@ public class AuthService {
         }
     }
 
+    @CacheEvict(value = "AUTH_TOKEN", key = "#userId")
     public void removeUser(String userId) {
         log.info("[Attempting to remove user with ID: {}]", userId);
 
