@@ -76,21 +76,8 @@ services:
     networks:
       - auth_network
 
-  redis:
-    container_name: redis
-    image: redis:latest
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data/cache
-    networks:
-      - auth_network
-
 volumes:
   pg_data:
-    driver: local
-  redis_data:
     driver: local
   kafka_data:
     driver: local
