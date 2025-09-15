@@ -16,6 +16,7 @@ A Spring Boot microservice that integrates with Keycloak to provide fast authent
 - Java Development Kit(JDK): Version 17 or higher
 - Gradle: For project build and dependency management
 - Keycloak: Authentication management
+- Vault: Keep your API keys, JWT tokens & secure data
   
   ```sh
   java --version
