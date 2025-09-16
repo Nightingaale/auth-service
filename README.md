@@ -1,7 +1,7 @@
-# Auth-service (Production)
+# Auth-Service (Production)
 A Spring Boot microservice that integrates with Keycloak to provide fast authentication and authorization using JWT
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,postman,git"/>
+  <img src="https://skillicons.dev/icons?i=java,spring,postgres,kafka,redis,docker,gradle,prometheus,postman,git"/>
 </p>
 
 # Features
