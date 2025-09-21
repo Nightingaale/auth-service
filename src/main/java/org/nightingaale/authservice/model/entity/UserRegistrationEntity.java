@@ -1,4 +1,4 @@
-package org.nightingaale.authservice.entity;
+package org.nightingaale.authservice.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

@@ -1,4 +1,4 @@
-package org.nightingaale.authservice.entity;
+package org.nightingaale.authservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "removed")
-public class UserRemovedEntity {
+@Table(name = "logout")
+public class UserLogoutEntity {
     @Id
     private String correlationId;
     private String userId;
-    private boolean userExists;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime removedDate;
+    private LocalDateTime logoutDate;
+
 }

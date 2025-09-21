@@ -2,10 +2,9 @@ package org.nightingaale.authservice.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nightingaale.authservice.dto.UserRegisteredDto;
-import org.nightingaale.authservice.dto.UserRemovedDto;
-import org.nightingaale.authservice.entity.UserRegisteredEntity;
-import org.nightingaale.authservice.entity.UserRegistrationEntity;
+import org.nightingaale.authservice.model.dto.UserRegisteredDto;
+import org.nightingaale.authservice.model.dto.UserRemovedDto;
+import org.nightingaale.authservice.model.entity.UserRegisteredEntity;
 import org.nightingaale.authservice.mapper.UserRegisteredMapper;
 import org.nightingaale.authservice.repository.UserRegisteredRepository;
 import org.springframework.kafka.annotation.KafkaListener;

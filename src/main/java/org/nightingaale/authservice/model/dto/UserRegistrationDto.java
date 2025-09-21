@@ -1,4 +1,4 @@
-package org.nightingaale.authservice.dto;
+package org.nightingaale.authservice.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

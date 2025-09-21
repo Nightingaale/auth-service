@@ -1,7 +1,7 @@
 package org.nightingaale.authservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.nightingaale.authservice.dto.*;
+import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;

@@ -2,8 +2,8 @@ package org.nightingaale.authservice.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.nightingaale.authservice.dto.UserRegistrationDto;
-import org.nightingaale.authservice.dto.UserRemoveDto;
+import org.nightingaale.authservice.model.dto.UserRegistrationDto;
+import org.nightingaale.authservice.model.dto.UserRemoveDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

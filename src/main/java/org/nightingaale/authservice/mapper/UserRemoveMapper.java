@@ -2,8 +2,8 @@ package org.nightingaale.authservice.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.nightingaale.authservice.dto.UserRemoveDto;
-import org.nightingaale.authservice.entity.UserRemoveEntity;
+import org.nightingaale.authservice.model.dto.UserRemoveDto;
+import org.nightingaale.authservice.model.entity.UserRemoveEntity;
 
 @Mapper(componentModel = "spring")
 public interface UserRemoveMapper {

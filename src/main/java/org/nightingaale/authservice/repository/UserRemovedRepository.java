@@ -1,6 +1,6 @@
 package org.nightingaale.authservice.repository;
 
-import org.nightingaale.authservice.entity.UserRemovedEntity;
+import org.nightingaale.authservice.model.entity.UserRemovedEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

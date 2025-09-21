@@ -2,8 +2,8 @@ package org.nightingaale.authservice.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.nightingaale.authservice.dto.UserRegisteredDto;
-import org.nightingaale.authservice.entity.UserRegisteredEntity;
+import org.nightingaale.authservice.model.dto.UserRegisteredDto;
+import org.nightingaale.authservice.model.entity.UserRegisteredEntity;
 
 @Mapper(componentModel = "spring")
 public interface UserRegisteredMapper {
