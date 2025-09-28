@@ -1,6 +1,7 @@
 package org.nightingaale.authservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.listener.AuthServiceListener;
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthServiceController {
 
     private final AuthServiceListener authDtoListener;
-    private final BCryptPasswordEncoder passwordEncoder;;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
 
 
@@ -55,9 +57,17 @@ public class AuthServiceController {
 
     @PatchMapping("/updated-user")
     public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event, @AuthenticationPrincipal Jwt jwt) {
-        UUID userId = UUID.fromString(jwt.getSubject());
-        event.setUserId(userId.toString());
-        authDtoListener.updatedUserEvent(event);
-        return ResponseEntity.ok("[User has successfully been updated!]");
+        log.info("Received PATCH request: {}", event.toString());
+        try {
+            UUID userId = UUID.fromString(jwt.getSubject());
+            event.setUserId(userId.toString());
+            authDtoListener.updatedUserEvent(event);
+            return ResponseEntity.ok("[User has successfully been updated!]");
+
+        } catch (RuntimeException e) {
+            log.error("Error updating user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }
+
