@@ -2,6 +2,7 @@ package org.nightingaale.authservice.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.nightingaale.authservice.model.dto.UserRegistrationDto;
 import org.nightingaale.authservice.model.dto.UserRemoveDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,5 +49,15 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, UserRemoveDto> userRemoveKafkaTemplate() {
         return new KafkaTemplate<>(userRemoveProducerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, KafkaUserUpdateRequestEvent> userUpdatedProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(baseConfig());
+    }
+
+    @Bean
+    public KafkaTemplate<String, KafkaUserUpdateRequestEvent> userUpdatedKafkaTemplate() {
+        return new KafkaTemplate<>(userUpdatedProducerFactory());
     }
 }

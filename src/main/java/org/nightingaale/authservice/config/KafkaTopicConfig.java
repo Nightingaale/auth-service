@@ -19,4 +19,10 @@ public class KafkaTopicConfig {
         return TopicBuilder.name("user-remove")
                 .build();
     }
+
+    @Bean
+    public NewTopic userUpdateTopic() {
+        return TopicBuilder.name("user-updated")
+                .build();
+    }
 }

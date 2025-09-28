@@ -2,6 +2,7 @@ package org.nightingaale.authservice.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.nightingaale.authservice.model.dto.UserRegisteredDto;
 import org.nightingaale.authservice.model.dto.UserRemovedDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +73,31 @@ public class KafkaConsumerConfig {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, UserRemovedDto>> kafkaListenerContainerFactoryUserRemoved(
             ConsumerFactory<String, UserRemovedDto> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, UserRemovedDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, KafkaUserUpdateRequestEvent> consumerUserUpdateFactory() {
+        JsonDeserializer<KafkaUserUpdateRequestEvent> deserializer = new JsonDeserializer<>(KafkaUserUpdateRequestEvent.class);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(false);
+
+        ErrorHandlingDeserializer<KafkaUserUpdateRequestEvent> errorHandlingDeserializer = new ErrorHandlingDeserializer<>(deserializer);
+
+        Map<String, Object> consumerConfig = new HashMap<>();
+
+        consumerConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, errorHandlingDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(consumerConfig, new StringDeserializer(), errorHandlingDeserializer);
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, KafkaUserUpdateRequestEvent>> kafkaListenerContainerFactoryUserUpdate(
+            ConsumerFactory<String, KafkaUserUpdateRequestEvent> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, KafkaUserUpdateRequestEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }

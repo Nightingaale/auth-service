@@ -4,6 +4,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.AccessTokenResponse;
+import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.model.dto.UserRegistrationDto;
 import org.nightingaale.authservice.model.entity.*;
@@ -23,6 +24,7 @@ public class AuthServiceListener {
 
     private final KafkaTemplate<String, UserRegistrationDto> userRegistrationTemplate;
     private final KafkaTemplate<String, UserRemoveDto> userRemoveTemplate;
+    private final KafkaTemplate<String, KafkaUserUpdateRequestEvent> userUpdatedEvent;
     private final AuthService authService;
     private final UserRegistrationMapper userRegistrationMapper;
     private final UserRegistrationRepository userRegistrationRepository;
@@ -104,6 +106,33 @@ public class AuthServiceListener {
         } catch (Exception e) {
             log.error("[User's login failed. Error: {}]", e.getMessage());
             ResponseEntity.status(401).build();
+        }
+    }
+
+    @Transactional
+    public void updatedUserEvent(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
+        try {
+            authService.updateUser(userUpdateRequestEvent);
+
+            userRegistrationRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
+                user.setUsername(userUpdateRequestEvent.getUsername());
+                user.setEmail(userUpdateRequestEvent.getEmail());
+                user.setPassword(userUpdateRequestEvent.getPassword());
+                userRegistrationRepository.save(user);
+            });
+
+            userLoginRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
+                user.setUsername(userUpdateRequestEvent.getUsername());
+                user.setPassword(userUpdateRequestEvent.getPassword());
+                userLoginRepository.save(user);
+            });
+
+            userUpdatedEvent.send("user-updated", userUpdateRequestEvent);
+            log.info("[Send Kafka user-updated event to user-service: {}]", userUpdateRequestEvent.getUserId());
+        }
+        catch (RuntimeException e) {
+            log.error("[User update with ID {} has been failed. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
+            throw e;
         }
     }
 }

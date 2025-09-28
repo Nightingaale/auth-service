@@ -13,9 +13,13 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.repository.UserLoginRepository;
+import org.nightingaale.authservice.repository.UserRegistrationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -37,6 +41,8 @@ public class AuthService {
     private String keycloakClientSecret;
 
     private final TokenService tokenService;
+    private final UserLoginRepository userLoginRepository;
+    private final UserRegistrationRepository userRegistrationRepository;
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
@@ -131,6 +137,38 @@ public class AuthService {
             }
         } catch (Exception e) {
             log.error("[Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void updateUser(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
+        log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getUserId());
+        try {
+            String userId = userUpdateRequestEvent.getUserId();
+
+            Keycloak keycloak = getAdminKeycloakInstance();
+            RealmResource realmResource = keycloak.realm(keycloakRealm);
+            UserResource userResource = realmResource.users().get(userId);
+
+            UserRepresentation userRepresentation = new UserRepresentation();
+            userRepresentation.setUsername(userUpdateRequestEvent.getUsername());
+
+            userRepresentation.setFirstName(userUpdateRequestEvent.getUsername());
+            userRepresentation.setLastName(userUpdateRequestEvent.getUsername());
+
+            userRepresentation.setEmail(userUpdateRequestEvent.getEmail());
+            userRepresentation.setEnabled(true);
+            userResource.update(userRepresentation);
+
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setTemporary(false);
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(userUpdateRequestEvent.getPassword());
+            userResource.resetPassword(credential);
+
+        } catch (RuntimeException e) {
+            log.error("[Failed to update user with ID in Keycloak: {}. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
+            throw e;
         }
     }
 }
