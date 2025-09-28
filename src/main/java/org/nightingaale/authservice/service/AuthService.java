@@ -140,7 +140,6 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void updateUser(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
         log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getUserId());
         try {
