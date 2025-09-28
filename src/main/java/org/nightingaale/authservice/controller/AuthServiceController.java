@@ -53,7 +53,7 @@ public class AuthServiceController {
         return ResponseEntity.ok("[User with ID: " + event.getUserId() + "has successfully been removed!]");
     }
 
-    @PatchMapping
+    @PatchMapping("/updated-user")
     public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event, @AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
         event.setUserId(userId.toString());
