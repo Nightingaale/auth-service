@@ -116,14 +116,11 @@ public class AuthServiceListener {
 
             userRegistrationRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
                 user.setUsername(userUpdateRequestEvent.getUsername());
-                user.setEmail(userUpdateRequestEvent.getEmail());
-                user.setPassword(userUpdateRequestEvent.getPassword());
                 userRegistrationRepository.save(user);
             });
 
             userLoginRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
                 user.setUsername(userUpdateRequestEvent.getUsername());
-                user.setPassword(userUpdateRequestEvent.getPassword());
                 userLoginRepository.save(user);
             });
 

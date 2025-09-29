@@ -154,23 +154,9 @@ public class AuthService {
                 updated = true;
             }
 
-            if (userUpdateRequestEvent.getEmail() != null) {
-                existingUser.setEmail(userUpdateRequestEvent.getEmail());
-                existingUser.setEmailVerified(true);
-                updated = true;
-            }
-
             if (updated) {
                 userResource.update(existingUser);
                 log.info("[User's username or email with ID: {} has been updated in Keycloak]", correlationId);
-            }
-
-            if (userUpdateRequestEvent.getPassword() != null) {
-                CredentialRepresentation credential = new CredentialRepresentation();
-                credential.setTemporary(false);
-                credential.setType(CredentialRepresentation.PASSWORD);
-                credential.setValue(userUpdateRequestEvent.getPassword());
-                userResource.resetPassword(credential);
             }
 
             log.info("[User with ID: {} has been successfully updated in Keycloak]", correlationId);
