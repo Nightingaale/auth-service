@@ -136,14 +136,14 @@ public class AuthService {
     }
 
     public void updateUser(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
-        log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getUserId());
+        log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getCorrelationId());
         try {
-            String userId = userUpdateRequestEvent.getUserId();
+            String correlationId = userUpdateRequestEvent.getCorrelationId();
             boolean updated = false;
 
             Keycloak keycloak = getAdminKeycloakInstance();
             RealmResource realmResource = keycloak.realm(keycloakRealm);
-            UserResource userResource = realmResource.users().get(userId);
+            UserResource userResource = realmResource.users().get(correlationId);
 
             UserRepresentation existingUser = userResource.toRepresentation();
 
@@ -162,7 +162,7 @@ public class AuthService {
 
             if (updated) {
                 userResource.update(existingUser);
-                log.info("[User's username or email with ID: {} has been updated in Keycloak]", userId);
+                log.info("[User's username or email with ID: {} has been updated in Keycloak]", correlationId);
             }
 
             if (userUpdateRequestEvent.getPassword() != null) {
@@ -173,7 +173,7 @@ public class AuthService {
                 userResource.resetPassword(credential);
             }
 
-            log.info("[User with ID: {} has been successfully updated in Keycloak]", userId);
+            log.info("[User with ID: {} has been successfully updated in Keycloak]", correlationId);
         } catch (RuntimeException e) {
             log.error("[Failed to update user with ID in Keycloak: {}. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
             throw e;
