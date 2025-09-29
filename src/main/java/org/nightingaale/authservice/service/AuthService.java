@@ -14,8 +14,6 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
-import org.nightingaale.authservice.repository.UserLoginRepository;
-import org.nightingaale.authservice.repository.UserRegistrationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -40,8 +38,6 @@ public class AuthService {
     private String keycloakClientSecret;
 
     private final TokenService tokenService;
-    private final UserLoginRepository userLoginRepository;
-    private final UserRegistrationRepository userRegistrationRepository;
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
@@ -143,6 +139,7 @@ public class AuthService {
         log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getUserId());
         try {
             String userId = userUpdateRequestEvent.getUserId();
+            boolean updated = false;
 
             Keycloak keycloak = getAdminKeycloakInstance();
             RealmResource realmResource = keycloak.realm(keycloakRealm);
@@ -154,13 +151,19 @@ public class AuthService {
                 existingUser.setUsername(userUpdateRequestEvent.getUsername());
                 existingUser.setFirstName(userUpdateRequestEvent.getUsername());
                 existingUser.setLastName(userUpdateRequestEvent.getUsername());
+                updated = true;
             }
 
             if (userUpdateRequestEvent.getEmail() != null) {
                 existingUser.setEmail(userUpdateRequestEvent.getEmail());
+                existingUser.setEmailVerified(true);
+                updated = true;
             }
 
-            userResource.update(existingUser);
+            if (updated) {
+                userResource.update(existingUser);
+                log.info("[User's username or email with ID: {} has been updated in Keycloak]", userId);
+            }
 
             if (userUpdateRequestEvent.getPassword() != null) {
                 CredentialRepresentation credential = new CredentialRepresentation();
