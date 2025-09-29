@@ -149,15 +149,27 @@ public class AuthService {
             RealmResource realmResource = keycloak.realm(keycloakRealm);
             UserResource userResource = realmResource.users().get(userId);
 
-            UserRepresentation userRepresentation = new UserRepresentation();
-            userRepresentation.setUsername(userUpdateRequestEvent.getUsername());
+            UserRepresentation existingUser = userResource.toRepresentation();
 
-            userRepresentation.setFirstName(userUpdateRequestEvent.getUsername());
-            userRepresentation.setLastName(userUpdateRequestEvent.getUsername());
+            if (userUpdateRequestEvent.getUsername() != null) {
+                existingUser.setUsername(userUpdateRequestEvent.getUsername());
+                existingUser.setFirstName(userUpdateRequestEvent.getUsername());
+                existingUser.setLastName(userUpdateRequestEvent.getUsername());
+            }
 
-            userRepresentation.setEmail(userUpdateRequestEvent.getEmail());
-            userRepresentation.setEnabled(true);
-            userResource.update(userRepresentation);
+            if (userUpdateRequestEvent.getEmail() != null) {
+                existingUser.setEmail(userUpdateRequestEvent.getEmail());
+            }
+
+            userResource.update(existingUser);
+
+            if (userUpdateRequestEvent.getPassword() != null) {
+                CredentialRepresentation credential = new CredentialRepresentation();
+                credential.setTemporary(false);
+                credential.setType(CredentialRepresentation.PASSWORD);
+                credential.setValue(userUpdateRequestEvent.getPassword());
+                userResource.resetPassword(credential);
+            }
 
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setTemporary(false);
@@ -165,6 +177,7 @@ public class AuthService {
             credential.setValue(userUpdateRequestEvent.getPassword());
             userResource.resetPassword(credential);
 
+            log.info("[User with ID: {} has been successfully updated in Keycloak]", userId);
         } catch (RuntimeException e) {
             log.error("[Failed to update user with ID in Keycloak: {}. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
             throw e;
