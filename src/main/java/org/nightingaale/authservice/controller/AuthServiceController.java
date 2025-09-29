@@ -54,20 +54,5 @@ public class AuthServiceController {
         authDtoListener.saveRemoveEvent(event);
         return ResponseEntity.ok("[User with ID: " + event.getUserId() + "has successfully been removed!]");
     }
-
-    @PatchMapping("/updated-user")
-    public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event, @AuthenticationPrincipal Jwt jwt) {
-        log.info("Received PATCH request: {}", event.toString());
-        try {
-            UUID userId = UUID.fromString(jwt.getSubject());
-            event.setUserId(userId.toString());
-            authDtoListener.updatedUserEvent(event);
-            return ResponseEntity.ok("[User has successfully been updated!]");
-
-        } catch (RuntimeException e) {
-            log.error("Error updating user", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
 }
 

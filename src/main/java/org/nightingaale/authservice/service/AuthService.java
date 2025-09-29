@@ -13,7 +13,6 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -132,37 +131,6 @@ public class AuthService {
             }
         } catch (Exception e) {
             log.error("[Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
-        }
-    }
-
-    public void updateUser(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
-        log.info("[Attempting to update user with ID: {}]", userUpdateRequestEvent.getCorrelationId());
-        try {
-            String correlationId = userUpdateRequestEvent.getCorrelationId();
-            boolean updated = false;
-
-            Keycloak keycloak = getAdminKeycloakInstance();
-            RealmResource realmResource = keycloak.realm(keycloakRealm);
-            UserResource userResource = realmResource.users().get(correlationId);
-
-            UserRepresentation existingUser = userResource.toRepresentation();
-
-            if (userUpdateRequestEvent.getUsername() != null) {
-                existingUser.setUsername(userUpdateRequestEvent.getUsername());
-                existingUser.setFirstName(userUpdateRequestEvent.getUsername());
-                existingUser.setLastName(userUpdateRequestEvent.getUsername());
-                updated = true;
-            }
-
-            if (updated) {
-                userResource.update(existingUser);
-                log.info("[User's username or email with ID: {} has been updated in Keycloak]", correlationId);
-            }
-
-            log.info("[User with ID: {} has been successfully updated in Keycloak]", correlationId);
-        } catch (RuntimeException e) {
-            log.error("[Failed to update user with ID in Keycloak: {}. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
-            throw e;
         }
     }
 }

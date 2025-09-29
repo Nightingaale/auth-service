@@ -1,8 +1,6 @@
 eureka:
   instance:
     hostname: ${EUREKA.INSTANCE.HOSTNAME}
-    prefer-ip-address: true
-    non-secure-port: 8090
   client:
     registerWithEureka: true
     fetchRegistry: true

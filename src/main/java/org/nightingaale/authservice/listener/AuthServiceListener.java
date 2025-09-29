@@ -108,28 +108,4 @@ public class AuthServiceListener {
             ResponseEntity.status(401).build();
         }
     }
-
-    @Transactional
-    public void updatedUserEvent(KafkaUserUpdateRequestEvent userUpdateRequestEvent) {
-        try {
-            authService.updateUser(userUpdateRequestEvent);
-
-            userRegistrationRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
-                user.setUsername(userUpdateRequestEvent.getUsername());
-                userRegistrationRepository.save(user);
-            });
-
-            userLoginRepository.findById(userUpdateRequestEvent.getUserId()).ifPresent(user -> {
-                user.setUsername(userUpdateRequestEvent.getUsername());
-                userLoginRepository.save(user);
-            });
-
-            userUpdatedEvent.send("user-updated", userUpdateRequestEvent);
-            log.info("[Send Kafka user-updated event to user-service: {}]", userUpdateRequestEvent.getUserId());
-        }
-        catch (RuntimeException e) {
-            log.error("[User update with ID {} has been failed. Error: {}]", userUpdateRequestEvent.getUserId(), e.getMessage());
-            throw e;
-        }
-    }
 }
