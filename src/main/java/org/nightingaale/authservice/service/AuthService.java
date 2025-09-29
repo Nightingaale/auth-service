@@ -19,7 +19,6 @@ import org.nightingaale.authservice.repository.UserRegistrationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -157,25 +156,7 @@ public class AuthService {
                 existingUser.setLastName(userUpdateRequestEvent.getUsername());
             }
 
-            if (userUpdateRequestEvent.getEmail() != null) {
-                existingUser.setEmail(userUpdateRequestEvent.getEmail());
-            }
-
             userResource.update(existingUser);
-
-            if (userUpdateRequestEvent.getPassword() != null) {
-                CredentialRepresentation credential = new CredentialRepresentation();
-                credential.setTemporary(false);
-                credential.setType(CredentialRepresentation.PASSWORD);
-                credential.setValue(userUpdateRequestEvent.getPassword());
-                userResource.resetPassword(credential);
-            }
-
-            CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setTemporary(false);
-            credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(userUpdateRequestEvent.getPassword());
-            userResource.resetPassword(credential);
 
             log.info("[User with ID: {} has been successfully updated in Keycloak]", userId);
         } catch (RuntimeException e) {
