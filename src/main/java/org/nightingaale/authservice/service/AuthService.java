@@ -156,7 +156,19 @@ public class AuthService {
                 existingUser.setLastName(userUpdateRequestEvent.getUsername());
             }
 
+            if (userUpdateRequestEvent.getEmail() != null) {
+                existingUser.setEmail(userUpdateRequestEvent.getEmail());
+            }
+
             userResource.update(existingUser);
+
+            if (userUpdateRequestEvent.getPassword() != null) {
+                CredentialRepresentation credential = new CredentialRepresentation();
+                credential.setTemporary(false);
+                credential.setType(CredentialRepresentation.PASSWORD);
+                credential.setValue(userUpdateRequestEvent.getPassword());
+                userResource.resetPassword(credential);
+            }
 
             log.info("[User with ID: {} has been successfully updated in Keycloak]", userId);
         } catch (RuntimeException e) {
