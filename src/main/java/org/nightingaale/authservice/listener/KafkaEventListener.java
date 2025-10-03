@@ -6,7 +6,7 @@ import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
 import org.nightingaale.authservice.model.dto.UserRegisteredDto;
 import org.nightingaale.authservice.model.dto.UserRemovedDto;
 import org.nightingaale.authservice.model.entity.UserRegisteredEntity;
-import org.nightingaale.authservice.mapper.UserRegisteredMapper;
+import org.nightingaale.authservice.mapper.postgres.UserRegisteredMapper;
 import org.nightingaale.authservice.repository.UserRegisteredRepository;
 import org.nightingaale.authservice.service.AuthService;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -36,5 +36,11 @@ public class KafkaEventListener {
             userRegisteredRepository.save(entity);
             log.info("[Received user-registered Kafka event from user-service. User has been successfully registered with ID: {}]", event.getUserId());
         }
+    }
+
+    @KafkaListener(topics = "user-update", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserUpdate")
+    public void updateUser(KafkaUserUpdateRequestEvent event) {
+        authServiceListener.updateUserEvent(event);
+        log.info("Receive user-update Kafka event from user-service with ID: {}.", event.getUserId());
     }
 }

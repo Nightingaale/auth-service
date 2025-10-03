@@ -3,6 +3,7 @@ package org.nightingaale.authservice.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.listener.KafkaEventListener;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.service.AuthService;
@@ -24,6 +25,7 @@ public class AuthServiceController {
     private final AuthServiceListener authDtoListener;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final KafkaEventListener kafkaEventListener;
 
 
     @PostMapping("/sign-up")
@@ -53,6 +55,13 @@ public class AuthServiceController {
         event.setCorrelationId(UUID.randomUUID().toString());
         authDtoListener.saveRemoveEvent(event);
         return ResponseEntity.ok("[User with ID: " + event.getUserId() + "has successfully been removed!]");
+    }
+
+    @PatchMapping("/updated")
+    public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event) {
+        log.info("[Received PATCH request for userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
+        authService.updateUserInKeycloak(event);
+        return ResponseEntity.ok("[User has successfully been updated!]");
     }
 }
 

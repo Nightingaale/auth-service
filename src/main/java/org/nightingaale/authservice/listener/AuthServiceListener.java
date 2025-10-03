@@ -3,15 +3,26 @@ package org.nightingaale.authservice.listener;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
+import org.nightingaale.authservice.mapper.postgres.UserLoginMapper;
+import org.nightingaale.authservice.mapper.postgres.UserRegistrationMapper;
+import org.nightingaale.authservice.mapper.postgres.UserRemoveMapper;
+import org.nightingaale.authservice.mapper.postgres.UserRemovedMapper;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.model.dto.UserRegistrationDto;
 import org.nightingaale.authservice.model.entity.*;
-import org.nightingaale.authservice.mapper.*;
 import org.nightingaale.authservice.model.entity.UserRemoveEntity;
 import org.nightingaale.authservice.repository.*;
 import org.nightingaale.authservice.service.AuthService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -34,6 +45,30 @@ public class AuthServiceListener {
     private final UserRemoveRepository userRemoveRepository;
     private final UserRemovedMapper userRemovedMapper;
     private final UserRemovedRepository userRemovedRepository;
+    private final UserUpdateRequestMapper userUpdateRequestMapper;
+
+    @Value("${keycloak.auth-server-url}")
+    private String keycloakAuthServerUrl;
+
+    @Value("${keycloak.realm}")
+    private String keycloakRealm;
+
+    @Value("${keycloak.credentials.client-id}")
+    private String keycloakClientId;
+
+    @Value("${keycloak.credentials.secret}")
+    private String keycloakClientSecret;
+
+    private Keycloak getAdminKeycloakInstance() {
+        log.info("[Creating Keycloak administration instance]");
+        return KeycloakBuilder.builder()
+                .serverUrl(keycloakAuthServerUrl)
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .realm(keycloakRealm)
+                .clientId(keycloakClientId)
+                .clientSecret(keycloakClientSecret)
+                .build();
+    }
 
     public void saveRegistrationEvent(UserRegistrationDto event) {
         try {
@@ -71,14 +106,15 @@ public class AuthServiceListener {
             userRemovedRepository.save(entity);
 
             log.info("[User with ID: {} successfully removed]", event.getUserId());
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("[Removed failed for user {}. Error: {}]", event.getUserId(), e.getMessage());
+            throw e;
         }
     }
 
     public void saveRemoveEvent(UserRemoveDto event) {
         try {
-            if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
+            if (userRegistrationRepository.existsByUserId(event.getUserId())) {
                 log.warn("[User with ID: {}", event.getUserId() + "does not exist]");
                 return;
             }
@@ -106,6 +142,43 @@ public class AuthServiceListener {
         } catch (Exception e) {
             log.error("[User's login failed. Error: {}]", e.getMessage());
             ResponseEntity.status(401).build();
+        }
+    }
+
+    @Transactional
+    public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
+        try {
+            if (userRegistrationRepository.existsByUserId(event.getUserId())) {
+                log.warn("[User with user ID: {}", event.getUserId() + "does not exist]");
+                return;
+            }
+
+            Keycloak keycloak = getAdminKeycloakInstance();
+            UsersResource usersResource = keycloak.realm(keycloakRealm).users();
+            UserResource userResource = usersResource.get(event.getCorrelationId());
+            UserRepresentation userRep = userResource.toRepresentation();
+
+            // Partial update локальной БД на основе Keycloak
+            userRegistrationRepository.findByUserId(event.getUserId())
+                    .ifPresent(user -> {
+                        userUpdateRequestMapper.updateFromKeycloak(userRep, user);
+                        userRegistrationRepository.save(user);
+                        log.info("[User with userId: {} has successfully been updated in DB from Keycloak]", event.getUserId());
+                    });
+
+            // UserLoginEntity
+            userLoginRepository.findByCorrelationId(event.getCorrelationId())
+                    .ifPresent(user -> {
+                        userUpdateRequestMapper.updateToLoginEntity(userRep, user);
+                        userLoginRepository.save(user);
+                        log.info("[User with correlationId: {} has successfully been updated in DB from Keycloak]", event.getCorrelationId());
+                    });
+
+            userUpdatedEvent.send("user-update", event);
+            log.info("[Send Kafka user-update event to user-service: {}, {}", event.getUserId(), event.getCorrelationId());
+        } catch (RuntimeException e) {
+            log.error("[Update failed. Error: {}]", e.getMessage());
+            throw e;
         }
     }
 }

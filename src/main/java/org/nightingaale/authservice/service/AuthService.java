@@ -13,6 +13,9 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.listener.AuthServiceListener;
+import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final AuthServiceListener authServiceListener;
     @Value("${keycloak.auth-server-url}")
     private String keycloakAuthServerUrl;
 
@@ -37,6 +41,7 @@ public class AuthService {
     private String keycloakClientSecret;
 
     private final TokenService tokenService;
+    private final UserUpdateRequestMapper userUpdateRequestMapper;
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
@@ -131,6 +136,35 @@ public class AuthService {
             }
         } catch (Exception e) {
             log.error("[Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
+        }
+    }
+
+    public void updateUserInKeycloak(KafkaUserUpdateRequestEvent event) {
+        String correlationId = event.getCorrelationId();
+        log.info("[Updating user with correlationId: {} in Keycloak...]", correlationId);
+
+        try {
+            Keycloak keycloak = getAdminKeycloakInstance();
+            UsersResource usersResource = keycloak.realm(keycloakRealm).users();
+
+            UserResource userResource = usersResource.get(correlationId);
+            UserRepresentation userRep = userResource.toRepresentation();
+
+            userUpdateRequestMapper.toEvent(event, userRep);
+
+            userResource.update(userRep);
+
+            if (event.getPassword() != null) {
+                CredentialRepresentation cred = new CredentialRepresentation();
+                cred.setType(CredentialRepresentation.PASSWORD);
+                cred.setValue(event.getPassword());
+                cred.setTemporary(false);
+                userResource.resetPassword(cred);
+            }
+            log.info("[User with correlationId: {} successfully updated in Keycloak]", correlationId);
+        } catch (RuntimeException e) {
+            log.error("[Failed to update user with correlationId: {}. Error: {}]", correlationId, e.getMessage(), e);
+            throw new RuntimeException("[Failed to update user with correlationId: " + correlationId + ". Error: " + e.getMessage(), e);
         }
     }
 }
