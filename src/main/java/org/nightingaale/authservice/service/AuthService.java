@@ -144,21 +144,13 @@ public class AuthService {
 
         try {
             Keycloak keycloak = getAdminKeycloakInstance();
-            log.info("[Creating Keycloak administration instance...]");
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
-
-            try {
-                UserRepresentation existingUser = usersResource.get(userId).toRepresentation();
-                log.info("[User found in Keycloak: {}]", existingUser.getUsername());
-            } catch (NotFoundException e) {
-                log.error("[User with userId: {} NOT FOUND in Keycloak]", userId);
-                throw new RuntimeException("User not found in Keycloak with userId: " + userId);
-            }
 
             UserResource userResource = usersResource.get(userId);
             UserRepresentation userRep = userResource.toRepresentation();
 
             userUpdateRequestMapper.toEvent(event, userRep);
+
             userResource.update(userRep);
 
             if (event.getPassword() != null) {
@@ -168,10 +160,10 @@ public class AuthService {
                 cred.setTemporary(false);
                 userResource.resetPassword(cred);
             }
-            log.info("[User with userId: {} successfully updated in Keycloak]", userId);
-        } catch (RuntimeException e) {
-            log.error("[Failed to update user with userId: {}. Error: {}]", userId, e.getMessage(), e);
-            throw new RuntimeException("[Failed to update user with userId: " + userId + ". Error: " + e.getMessage(), e);
+            log.info("[User with userId: {} has successfully been updated in Keycloak]", userId);
+        } catch (NotFoundException e) {
+            log.error("[User with userId: {} not found in Keycloak]", userId);
+            throw new RuntimeException("User not found: " + userId, e);
         }
     }
 }

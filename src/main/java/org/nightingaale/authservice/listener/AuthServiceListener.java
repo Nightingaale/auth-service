@@ -148,14 +148,9 @@ public class AuthServiceListener {
     @Transactional
     public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
         try {
-            if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
-                log.warn("[User with user ID: {}", event.getUserId() + "does not exist]");
-                return;
-            }
-
             Keycloak keycloak = getAdminKeycloakInstance();
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
-            UserResource userResource = usersResource.get(event.getCorrelationId());
+            UserResource userResource = usersResource.get(event.getUserId());
             UserRepresentation userRep = userResource.toRepresentation();
 
             userRegistrationRepository.findByUserId(event.getUserId())
