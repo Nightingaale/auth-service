@@ -1,4 +1,4 @@
-package org.nightingaale.authservice.mapper;
+package org.nightingaale.authservice.mapper.postgres;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
