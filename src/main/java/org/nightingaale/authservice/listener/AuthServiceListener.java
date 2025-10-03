@@ -158,7 +158,6 @@ public class AuthServiceListener {
             UserResource userResource = usersResource.get(event.getCorrelationId());
             UserRepresentation userRep = userResource.toRepresentation();
 
-            // Partial update локальной БД на основе Keycloak
             userRegistrationRepository.findByUserId(event.getUserId())
                     .ifPresent(user -> {
                         userUpdateRequestMapper.updateFromKeycloak(userRep, user);
@@ -166,7 +165,6 @@ public class AuthServiceListener {
                         log.info("[User with userId: {} has successfully been updated in DB from Keycloak]", event.getUserId());
                     });
 
-            // UserLoginEntity
             userLoginRepository.findByCorrelationId(event.getCorrelationId())
                     .ifPresent(user -> {
                         userUpdateRequestMapper.updateToLoginEntity(userRep, user);

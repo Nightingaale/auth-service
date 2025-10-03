@@ -8,7 +8,6 @@ import org.nightingaale.authservice.model.dto.UserRemovedDto;
 import org.nightingaale.authservice.model.entity.UserRegisteredEntity;
 import org.nightingaale.authservice.mapper.postgres.UserRegisteredMapper;
 import org.nightingaale.authservice.repository.UserRegisteredRepository;
-import org.nightingaale.authservice.service.AuthService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class KafkaEventListener {
 
     private final AuthServiceListener authServiceListener;
-    private final AuthService authService;
     private final UserRegisteredRepository userRegisteredRepository;
     private final UserRegisteredMapper userRegisteredMapper;
 

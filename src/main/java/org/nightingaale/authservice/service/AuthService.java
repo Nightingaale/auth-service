@@ -14,7 +14,6 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
-import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,7 +26,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthServiceListener authServiceListener;
     @Value("${keycloak.auth-server-url}")
     private String keycloakAuthServerUrl;
 

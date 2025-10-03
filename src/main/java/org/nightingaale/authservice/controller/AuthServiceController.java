@@ -3,7 +3,6 @@ package org.nightingaale.authservice.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
-import org.nightingaale.authservice.listener.KafkaEventListener;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.service.AuthService;
@@ -25,8 +24,6 @@ public class AuthServiceController {
     private final AuthServiceListener authDtoListener;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
-    private final KafkaEventListener kafkaEventListener;
-
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
