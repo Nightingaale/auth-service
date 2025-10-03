@@ -145,11 +145,10 @@ public class AuthService {
             Keycloak keycloak = getAdminKeycloakInstance();
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
 
-            UserResource userResource = usersResource.get(correlationId);
+            UserResource userResource = usersResource.get(event.getCorrelationId());
             UserRepresentation userRep = userResource.toRepresentation();
 
             userUpdateRequestMapper.toEvent(event, userRep);
-
             userResource.update(userRep);
 
             if (event.getPassword() != null) {

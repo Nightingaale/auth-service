@@ -148,7 +148,7 @@ public class AuthServiceListener {
     @Transactional
     public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
         try {
-            if (userRegistrationRepository.existsByUserId(event.getUserId())) {
+            if (!userRegistrationRepository.existsByUserId(event.getUserId())) {
                 log.warn("[User with user ID: {}", event.getUserId() + "does not exist]");
                 return;
             }
