@@ -147,12 +147,12 @@ public class AuthServiceListener {
 
     @Transactional
     public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
-        try {
             Keycloak keycloak = getAdminKeycloakInstance();
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
             UserResource userResource = usersResource.get(event.getUserId());
             UserRepresentation userRep = userResource.toRepresentation();
 
+            try {
             userRegistrationRepository.findByUserId(event.getUserId())
                     .ifPresent(user -> {
                         userUpdateRequestMapper.updateFromKeycloak(userRep, user);

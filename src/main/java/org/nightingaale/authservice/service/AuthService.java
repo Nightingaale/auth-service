@@ -19,6 +19,7 @@ import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -138,17 +139,18 @@ public class AuthService {
         }
     }
 
+    @Transactional
     public void updateUserInKeycloak(KafkaUserUpdateRequestEvent event) {
         String userId = event.getUserId();
         log.info("[Updating user with userId: {} in Keycloak...]", userId);
 
-        try {
             Keycloak keycloak = getAdminKeycloakInstance();
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
 
             UserResource userResource = usersResource.get(userId);
             UserRepresentation userRep = userResource.toRepresentation();
 
+            try {
             userUpdateRequestMapper.toEvent(event, userRep);
 
             userResource.update(userRep);
