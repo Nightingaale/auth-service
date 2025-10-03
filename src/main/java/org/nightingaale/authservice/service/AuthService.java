@@ -138,14 +138,13 @@ public class AuthService {
     }
 
     public void updateUserInKeycloak(KafkaUserUpdateRequestEvent event) {
-        String correlationId = event.getCorrelationId();
-        log.info("[Updating user with correlationId: {} in Keycloak...]", correlationId);
+        String userId = event.getCorrelationId();
+        log.info("[Updating user with correlationId: {} in Keycloak...]", userId);
 
         try {
             Keycloak keycloak = getAdminKeycloakInstance();
-            UsersResource usersResource = keycloak.realm(keycloakRealm).users();
-
-            UserResource userResource = usersResource.get(event.getCorrelationId());
+            log.info("[Creating Keycloak administration instance...]");
+            UserResource userResource = keycloak.realm(keycloakRealm).users().get(userId);
             UserRepresentation userRep = userResource.toRepresentation();
 
             userUpdateRequestMapper.toEvent(event, userRep);
@@ -158,10 +157,10 @@ public class AuthService {
                 cred.setTemporary(false);
                 userResource.resetPassword(cred);
             }
-            log.info("[User with correlationId: {} successfully updated in Keycloak]", correlationId);
+            log.info("[User with correlationId: {} successfully updated in Keycloak]", userId);
         } catch (RuntimeException e) {
-            log.error("[Failed to update user with correlationId: {}. Error: {}]", correlationId, e.getMessage(), e);
-            throw new RuntimeException("[Failed to update user with correlationId: " + correlationId + ". Error: " + e.getMessage(), e);
+            log.error("[Failed to update user with correlationId: {}. Error: {}]", userId, e.getMessage(), e);
+            throw new RuntimeException("[Failed to update user with correlationId: " + userId + ". Error: " + e.getMessage(), e);
         }
     }
 }
