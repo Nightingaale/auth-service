@@ -167,8 +167,8 @@ public class AuthServiceListener {
                         log.info("[User with correlationId: {} has successfully been updated in DB from Keycloak]", event.getCorrelationId());
                     });
 
-            userUpdatedEvent.send("user-update", event);
-            log.info("[Send Kafka user-update event to user-service: {}, {}", event.getUserId(), event.getCorrelationId());
+            userUpdatedEvent.send("user-updated", event);
+            log.info("[Send Kafka user-updated event to user-service: {}, {}", event.getUserId(), event.getCorrelationId());
         } catch (RuntimeException e) {
             log.error("[Update failed. Error: {}]", e.getMessage());
             throw e;

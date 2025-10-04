@@ -39,6 +39,6 @@ public class KafkaEventListener {
     @KafkaListener(topics = "user-update", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserUpdate")
     public void updateUser(KafkaUserUpdateRequestEvent event) {
         authServiceListener.updateUserEvent(event);
-        log.info("Receive user-update Kafka event from user-service with ID: {}.", event.getUserId());
+        log.info("[Received user-update Kafka event from user-service with ID: {}]", event.getUserId());
     }
 }
