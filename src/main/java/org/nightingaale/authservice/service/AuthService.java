@@ -45,13 +45,7 @@ public class AuthService {
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
-        return KeycloakBuilder.builder()
-                .serverUrl(keycloakAuthServerUrl)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .realm(keycloakRealm)
-                .clientId(keycloakClientId)
-                .clientSecret(keycloakClientSecret)
-                .build();
+        return KeycloakBuilder.builder().serverUrl(keycloakAuthServerUrl).grantType(OAuth2Constants.CLIENT_CREDENTIALS).realm(keycloakRealm).clientId(keycloakClientId).clientSecret(keycloakClientSecret).build();
     }
 
     public String registerUser(String username, String email, String password) {
@@ -93,15 +87,7 @@ public class AuthService {
     }
 
     public AccessTokenResponse authenticateUser(String username, String password) {
-        String userId = getAdminKeycloakInstance()
-                .realm(keycloakRealm)
-                .users()
-                .search(username)
-                .stream()
-                .filter(user -> user.getUsername().equalsIgnoreCase(username))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("[User has not found]"))
-                .getId();
+        String userId = getAdminKeycloakInstance().realm(keycloakRealm).users().search(username).stream().filter(user -> user.getUsername().equalsIgnoreCase(username)).findFirst().orElseThrow(() -> new RuntimeException("[User has not found]")).getId();
         return tokenService.getCachedToken(userId, username, password);
     }
 
@@ -143,25 +129,24 @@ public class AuthService {
     public void updateUserInKeycloak(KafkaUserUpdateRequestEvent event) {
         String userId = event.getUserId();
         log.info("[Updating user with userId: {} in Keycloak...]", userId);
+        Keycloak keycloak = getAdminKeycloakInstance();
 
-            Keycloak keycloak = getAdminKeycloakInstance();
-            UsersResource usersResource = keycloak.realm(keycloakRealm).users();
+        try {
+        UsersResource usersResource = keycloak.realm(keycloakRealm).users();
 
-            UserResource userResource = usersResource.get(userId);
-            UserRepresentation userRep = userResource.toRepresentation();
+        UserResource userResource = usersResource.get(userId);
+        UserRepresentation userRep = userResource.toRepresentation();
+        userUpdateRequestMapper.toEvent(event, userRep);
 
-            try {
-            userUpdateRequestMapper.toEvent(event, userRep);
+        userResource.update(userRep);
 
-            userResource.update(userRep);
-
-            if (event.getPassword() != null) {
+        if (event.getPassword() != null) {
                 CredentialRepresentation cred = new CredentialRepresentation();
                 cred.setType(CredentialRepresentation.PASSWORD);
                 cred.setValue(event.getPassword());
                 cred.setTemporary(false);
                 userResource.resetPassword(cred);
-            }
+        }
             log.info("[User with userId: {} has successfully been updated in Keycloak]", userId);
         } catch (NotFoundException e) {
             log.error("[User with userId: {} not found in Keycloak]", userId);
