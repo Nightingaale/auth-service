@@ -9,7 +9,6 @@ import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -23,23 +22,24 @@ import java.util.UUID;
 @RequestMapping("/api/v1/auth")
 public class AuthServiceController {
 
-    private final AuthServiceListener authDtoListener;
+    private final AuthServiceListener authServiceListener;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final KafkaEventListener kafkaEventListener;
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> signUp(@RequestBody UserRegistrationDto event) {
         event.setCorrelationId(UUID.randomUUID().toString());
         event.setPassword(passwordEncoder.encode(event.getPassword()));
-        authDtoListener.saveRegistrationEvent(event);
+        authServiceListener.saveRegistrationEvent(event);
         return ResponseEntity.ok("[User has successfully been signed up!]");
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody UserLoginDto event) {
         event.setCorrelationId(UUID.randomUUID().toString());
-        authDtoListener.saveLoginEvent(event);
+        authServiceListener.saveLoginEvent(event);
         return ResponseEntity.ok("[User has successfully been signed in!]");
     }
 
@@ -52,14 +52,14 @@ public class AuthServiceController {
     @PostMapping("/remove-user")
     public ResponseEntity<?> removeUser(@RequestBody UserRemoveDto event) {
         event.setCorrelationId(UUID.randomUUID().toString());
-        authDtoListener.saveRemoveEvent(event);
+        authServiceListener.saveRemoveEvent(event);
         return ResponseEntity.ok("[User with ID: " + event.getUserId() + "has successfully been removed!]");
     }
 
     @PatchMapping("/updated")
     public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event) {
         log.info("[Received PATCH request from user-service for userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
-        authService.handleUserUpdateEvent(event);
+        kafkaEventListener.updateUser(event);
         return ResponseEntity.ok("[User has successfully been updated!]");
     }
 }

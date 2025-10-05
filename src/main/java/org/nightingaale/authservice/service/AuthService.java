@@ -15,7 +15,6 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
-import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +28,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthServiceListener authServiceListener;
     private final TokenService tokenService;
     private final UserUpdateRequestMapper userUpdateRequestMapper;
 
@@ -153,18 +151,6 @@ public class AuthService {
         } catch (NotFoundException e) {
             log.error("[User with userId: {} not found in Keycloak]", userId);
             throw new RuntimeException("[User not found: ]" + userId, e);
-        }
-    }
-
-    @Transactional
-    public void handleUserUpdateEvent(KafkaUserUpdateRequestEvent event) {
-        try {
-            updateUserInKeycloak(event);
-            authServiceListener.updateUserEvent(event);
-            log.info("[User has successfully been updated in Keycloak and DB with userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
-        } catch (RuntimeException e) {
-            log.error("[Error while updating user in keycloak or DB]", e);
-            throw new RuntimeException("[Error while updating user in keycloak or DB]", e);
         }
     }
 }

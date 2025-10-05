@@ -140,7 +140,7 @@ public class AuthServiceListener {
     }
 
     @Transactional
-    public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
+    public void updateUserEventInDB(KafkaUserUpdateRequestEvent event) {
 
         Keycloak keycloak = getAdminKeycloakInstance();
 
