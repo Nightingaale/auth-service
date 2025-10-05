@@ -15,6 +15,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.mapper.UserUpdateRequestMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,6 +29,10 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final AuthServiceListener authServiceListener;
+    private final TokenService tokenService;
+    private final UserUpdateRequestMapper userUpdateRequestMapper;
+
     @Value("${keycloak.auth-server-url}")
     private String keycloakAuthServerUrl;
 
@@ -39,9 +44,6 @@ public class AuthService {
 
     @Value("${keycloak.credentials.secret}")
     private String keycloakClientSecret;
-
-    private final TokenService tokenService;
-    private final UserUpdateRequestMapper userUpdateRequestMapper;
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
@@ -121,7 +123,7 @@ public class AuthService {
                 throw new RuntimeException("[User has not found in Keycloak]");
             }
         } catch (Exception e) {
-            log.error("[Failed to remove user with userID: {}. Error: {}]", userId, e.getMessage(), e);
+            log.error("[Failed to remove user with userId: {}. Error: {}]", userId, e.getMessage(), e);
         }
     }
 
@@ -147,10 +149,22 @@ public class AuthService {
                 cred.setTemporary(false);
                 userResource.resetPassword(cred);
         }
-            log.info("[User with userId: {} has successfully been updated in Keycloak]", userId);
+            log.info("[User's info with userId: {} has successfully been updated in Keycloak]", userId);
         } catch (NotFoundException e) {
             log.error("[User with userId: {} not found in Keycloak]", userId);
-            throw new RuntimeException("User not found: " + userId, e);
+            throw new RuntimeException("[User not found: ]" + userId, e);
+        }
+    }
+
+    @Transactional
+    public void handleUserUpdateEvent(KafkaUserUpdateRequestEvent event) {
+        try {
+            updateUserInKeycloak(event);
+            authServiceListener.updateUserEvent(event);
+            log.info("[User has successfully been updated in Keycloak and DB with userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
+        } catch (RuntimeException e) {
+            log.error("[Error while updating user in keycloak or DB]", e);
+            throw new RuntimeException("[Error while updating user in keycloak or DB]", e);
         }
     }
 }

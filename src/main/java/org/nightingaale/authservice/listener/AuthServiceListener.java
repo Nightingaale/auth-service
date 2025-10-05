@@ -61,13 +61,7 @@ public class AuthServiceListener {
 
     private Keycloak getAdminKeycloakInstance() {
         log.info("[Creating Keycloak administration instance]");
-        return KeycloakBuilder.builder()
-                .serverUrl(keycloakAuthServerUrl)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .realm(keycloakRealm)
-                .clientId(keycloakClientId)
-                .clientSecret(keycloakClientSecret)
-                .build();
+        return KeycloakBuilder.builder().serverUrl(keycloakAuthServerUrl).grantType(OAuth2Constants.CLIENT_CREDENTIALS).realm(keycloakRealm).clientId(keycloakClientId).clientSecret(keycloakClientSecret).build();
     }
 
     public void saveRegistrationEvent(UserRegistrationDto event) {
@@ -147,25 +141,19 @@ public class AuthServiceListener {
 
     @Transactional
     public void updateUserEvent(KafkaUserUpdateRequestEvent event) {
-            Keycloak keycloak = getAdminKeycloakInstance();
+
+        Keycloak keycloak = getAdminKeycloakInstance();
+
+        try {
             UsersResource usersResource = keycloak.realm(keycloakRealm).users();
             UserResource userResource = usersResource.get(event.getUserId());
             UserRepresentation userRep = userResource.toRepresentation();
 
-            try {
-            userRegistrationRepository.findByUserId(event.getUserId())
-                    .ifPresent(user -> {
-                        userUpdateRequestMapper.updateFromKeycloak(userRep, user);
-                        userRegistrationRepository.save(user);
-                        log.info("[User with userId: {} has successfully been updated in DB from Keycloak]", event.getUserId());
-                    });
-
-            userLoginRepository.findByCorrelationId(event.getCorrelationId())
-                    .ifPresent(user -> {
-                        userUpdateRequestMapper.updateToLoginEntity(userRep, user);
-                        userLoginRepository.save(user);
-                        log.info("[User with correlationId: {} has successfully been updated in DB from Keycloak]", event.getCorrelationId());
-                    });
+            userRegistrationRepository.findByUserId(event.getUserId()).ifPresent(user -> {
+                userUpdateRequestMapper.updateFromKeycloak(userRep, user);
+                userRegistrationRepository.save(user);
+                log.info("[User with userId: {} has updated in DB from Keycloak]", event.getUserId());
+            });
 
             userUpdatedEvent.send("user-updated", event);
             log.info("[Send Kafka user-updated event to user-service: {}, {}", event.getUserId(), event.getCorrelationId());

@@ -8,6 +8,7 @@ import org.nightingaale.authservice.model.dto.UserRemovedDto;
 import org.nightingaale.authservice.model.entity.UserRegisteredEntity;
 import org.nightingaale.authservice.mapper.postgres.UserRegisteredMapper;
 import org.nightingaale.authservice.repository.UserRegisteredRepository;
+import org.nightingaale.authservice.service.AuthService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class KafkaEventListener {
     private final AuthServiceListener authServiceListener;
     private final UserRegisteredRepository userRegisteredRepository;
     private final UserRegisteredMapper userRegisteredMapper;
+    private final AuthService authService;
 
     @KafkaListener(topics = "user-removed", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserRemoved")
     public void userRemoved(UserRemovedDto event) {
@@ -38,7 +40,7 @@ public class KafkaEventListener {
 
     @KafkaListener(topics = "user-update", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserUpdate")
     public void updateUser(KafkaUserUpdateRequestEvent event) {
-        authServiceListener.updateUserEvent(event);
         log.info("[Received user-update Kafka event from user-service with ID: {}]", event.getUserId());
+        authService.handleUserUpdateEvent(event);
     }
 }

@@ -3,11 +3,13 @@ package org.nightingaale.authservice.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nightingaale.authservice.event.KafkaUserUpdateRequestEvent;
+import org.nightingaale.authservice.listener.KafkaEventListener;
 import org.nightingaale.authservice.model.dto.*;
 import org.nightingaale.authservice.listener.AuthServiceListener;
 import org.nightingaale.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -56,8 +58,8 @@ public class AuthServiceController {
 
     @PatchMapping("/updated")
     public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event) {
-        log.info("[Received PATCH request for userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
-        authService.updateUserInKeycloak(event);
+        log.info("[Received PATCH request from user-service for userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
+        authService.handleUserUpdateEvent(event);
         return ResponseEntity.ok("[User has successfully been updated!]");
     }
 }
