@@ -35,9 +35,4 @@ public class KafkaEventListener {
             log.info("[Received user-registered Kafka event from user-service. User has been successfully registered with ID: {}]", event.getUserId());
         }
     }
-
-//    @KafkaListener(topics = "user-update", groupId = "auth-service", containerFactory = "kafkaListenerContainerFactoryUserUpdate")
-//    public void updateUser(KafkaUserUpdateRequestEvent event) {
-//        log.info("[Received user-update Kafka event from user-service with ID: {}]", event.getUserId());
-//    }
 }

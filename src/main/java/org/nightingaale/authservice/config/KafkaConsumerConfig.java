@@ -77,28 +77,4 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-//    @Bean
-//    public ConsumerFactory<String, KafkaUserUpdateRequestEvent> consumerUserUpdateFactory() {
-//        JsonDeserializer<KafkaUserUpdateRequestEvent> deserializer = new JsonDeserializer<>(KafkaUserUpdateRequestEvent.class);
-//        deserializer.addTrustedPackages("*");
-//        deserializer.setUseTypeMapperForKey(false);
-//
-//        ErrorHandlingDeserializer<KafkaUserUpdateRequestEvent> errorHandlingDeserializer = new ErrorHandlingDeserializer<>(deserializer);
-//
-//        Map<String, Object> consumerConfig = new HashMap<>();
-//
-//        consumerConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-//        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, errorHandlingDeserializer);
-//
-//        return new DefaultKafkaConsumerFactory<>(consumerConfig, new StringDeserializer(), errorHandlingDeserializer);
-//    }
-//
-//    @Bean
-//    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, KafkaUserUpdateRequestEvent>> kafkaListenerContainerFactoryUserUpdate(
-//            ConsumerFactory<String, KafkaUserUpdateRequestEvent> consumerFactory) {
-//        ConcurrentKafkaListenerContainerFactory<String, KafkaUserUpdateRequestEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory);
-//        return factory;
-//    }
 }
