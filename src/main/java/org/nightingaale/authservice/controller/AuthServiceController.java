@@ -25,7 +25,6 @@ public class AuthServiceController {
     private final AuthServiceListener authServiceListener;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
-    private final KafkaEventListener kafkaEventListener;
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
@@ -59,7 +58,8 @@ public class AuthServiceController {
     @PatchMapping("/updated")
     public ResponseEntity<?> updatedUser(@RequestBody KafkaUserUpdateRequestEvent event) {
         log.info("[Received PATCH request from user-service for userId: {}, correlationId: {}]", event.getUserId(), event.getCorrelationId());
-        kafkaEventListener.updateUser(event);
+        authService.updateUserInKeycloak(event);
+        authServiceListener.updateUserEventInDB(event);
         return ResponseEntity.ok("[User has successfully been updated!]");
     }
 }
