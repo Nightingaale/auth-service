@@ -48,6 +48,7 @@ public class AuthService {
         return KeycloakBuilder.builder().serverUrl(keycloakAuthServerUrl).grantType(OAuth2Constants.CLIENT_CREDENTIALS).realm(keycloakRealm).clientId(keycloakClientId).clientSecret(keycloakClientSecret).build();
     }
 
+    @Transactional
     public String registerUser(String username, String email, String password) {
         log.info("[Attempting to register user: {}]", username);
         Keycloak keycloak = getAdminKeycloakInstance();
