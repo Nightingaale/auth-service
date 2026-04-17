@@ -1,0 +1,29 @@
+### IDE ###
+.idea
+*.iml
+.vscode/
+
+### Creds ###
+.env.prod
+
+### Logging ###
+*.log
+
+### Git ###
+.gitignore
+.git
+.gitattributes
+
+### Docker ###
+Dockerfile
+
+### OS ###
+.DS_Store
+
+### Gradle ###
+build/*
+.gradle/
+!build/libs/*.jar
+
+### README ###
+*.md
